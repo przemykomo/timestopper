@@ -1,0 +1,35 @@
+{
+    "type": "minecraft:crafting_shaped",
+    "pattern":
+    [
+        "gsg",
+        "xax",
+        "iii"
+    ],
+    "key":
+    {
+        "s": {
+            "tag": "forge:glass_panes/colorless"
+        },
+        "g": {
+            "tag": "forge:dusts/glowstone"
+        },
+        "i":
+        {
+            "tag": "forge:ingots/gold"
+        },
+        "x":
+        {
+            "tag": "forge:gems/diamond"
+        },
+        "a":
+        {
+            "item": "minecraft:clock"
+        }
+    },
+    "result":
+    {
+        "item": "timestopper:timestopper",
+        "count": 1
+    }
+}
