@@ -1,21 +1,20 @@
 package xyz.przemyk.timestopper.items;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Rarity;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
-import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.world.World;
 import xyz.przemyk.timestopper.TimeStopperMod;
 import xyz.przemyk.timestopper.entities.ThrownTimeStopperEntity;
 
-import java.util.List;
-
 public class TimeStopperItem extends Item {
+
+    public boolean hasEffect(ItemStack stack) {
+        return true;
+    }
 
     public TimeStopperItem() {
         super(new Properties().rarity(Rarity.UNCOMMON).group(TimeStopperMod.TIME_STOPPER_ITEM_GROUP));

@@ -2,13 +2,10 @@ package xyz.przemyk.timestopper.entities;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.MobEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.IPacket;
-import net.minecraft.network.datasync.DataParameter;
-import net.minecraft.network.datasync.DataSerializers;
-import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.network.play.server.SSpawnObjectPacket;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.Vec3d;
@@ -79,9 +76,9 @@ public class ThrownTimeStopperEntity extends Entity {
             stoppedEntity.setMotion(0, 0, 0);
             stoppedEntity.setSilent(true);
 
-//            if (stoppedEntity instanceof LivingEntity) {
-//                ((LivingEntity) stoppedEntity).deserializeNBT();
-//            }
+            if (stoppedEntity instanceof MobEntity) {
+                ((MobEntity) stoppedEntity).setNoAI(true);
+            }
         }
     }
 
@@ -96,6 +93,10 @@ public class ThrownTimeStopperEntity extends Entity {
             stoppedEntity.setNoGravity(false);
             stoppedEntity.setMotion(savedMotion.get(stoppedEntity));
             stoppedEntity.setSilent(false);
+
+            if (stoppedEntity instanceof MobEntity) {
+                ((MobEntity) stoppedEntity).setNoAI(false);
+            }
         }
     }
 
@@ -116,6 +117,13 @@ public class ThrownTimeStopperEntity extends Entity {
                 stoppedEntity.setRotationYawHead(savedRotation.get(stoppedEntity));
             }
 
+            //Particles don't work idk why
+//            if (this.world.isRemote) {
+////                for (int i = 0; i < 5; ++i) {
+////                    world.addParticle(ParticleTypes.ENCHANT, getPosX(), getPosY(), getPosZ(), 0, 0, 0);
+////                }
+//                this.world.addParticle(ParticleTypes.INSTANT_EFFECT, this.getPosX(), this.getPosY(), this.getPosZ(), 0.0D, 0.0D, 0.0D);
+//            }
         } else {
             remove();
         }
