@@ -7,6 +7,8 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.IPacket;
 import net.minecraft.network.play.server.SSpawnObjectPacket;
+import net.minecraft.potion.EffectInstance;
+import net.minecraft.potion.Effects;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
@@ -19,10 +21,6 @@ public class ThrownTimeStopperEntity extends Entity {
 
     private int timeLeft;
     private AxisAlignedBB scanEntities;
-
-    public void setTimeLeft(int timeIn) {
-        timeLeft = timeIn;
-    }
 
     public ThrownTimeStopperEntity(EntityType<?> entityTypeIn, World worldIn) {
         super(entityTypeIn, worldIn);
@@ -40,7 +38,7 @@ public class ThrownTimeStopperEntity extends Entity {
 
     @Override
     protected void readAdditional(CompoundNBT compound) {
-        setTimeLeft(compound.getShort("TimeLeft"));
+        timeLeft = compound.getShort("TimeLeft");
     }
 
     @Override
@@ -61,7 +59,7 @@ public class ThrownTimeStopperEntity extends Entity {
     @Override
     public void onAddedToWorld() {
         super.onAddedToWorld();
-        setTimeLeft(60);
+        timeLeft = 60;
 
         stoppedEntities = world.getEntitiesWithinAABBExcludingEntity(this, scanEntities);
 
@@ -77,7 +75,9 @@ public class ThrownTimeStopperEntity extends Entity {
             stoppedEntity.setSilent(true);
 
             if (stoppedEntity instanceof MobEntity) {
-                ((MobEntity) stoppedEntity).setNoAI(true);
+                MobEntity mobEntity = (MobEntity) stoppedEntity;
+                mobEntity.setNoAI(true);
+                mobEntity.addPotionEffect(new EffectInstance(Effects.GLOWING, timeLeft));
             }
         }
     }
