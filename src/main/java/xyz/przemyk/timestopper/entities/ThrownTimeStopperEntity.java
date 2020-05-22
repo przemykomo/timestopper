@@ -1,7 +1,10 @@
 package xyz.przemyk.timestopper.entities;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.MobEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
@@ -12,15 +15,23 @@ import net.minecraft.potion.Effects;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
+import net.minecraft.world.server.ServerWorld;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class ThrownTimeStopperEntity extends Entity {
 
     private int timeLeft;
     private AxisAlignedBB scanEntities;
+
+    private List<UUID> stoppedEntitiesID = new ArrayList<>();
+    private Map<UUID, Vec3d> savedMotion = new HashMap<>();
+    private Map<UUID, Vec3d> savedPosition = new HashMap<>();
+    private Map<UUID, Float> savedRotation = new HashMap<>();
+
+    private List<Entity> stoppedEntities = new ArrayList<>();
+
+    private final Gson gson = new Gson();
 
     public ThrownTimeStopperEntity(EntityType<?> entityTypeIn, World worldIn) {
         super(entityTypeIn, worldIn);
@@ -30,6 +41,33 @@ public class ThrownTimeStopperEntity extends Entity {
         this(ModEntities.THROWN_TIME_STOPPER, worldIn);
         setPosition(pos.x, pos.y, pos.z);
         scanEntities = new AxisAlignedBB(-4, -4, -4, 4, 4, 4).offset(pos);
+
+        timeLeft = 60;
+
+        for (Entity stoppedEntity : world.getEntitiesWithinAABBExcludingEntity(this, scanEntities)) {
+            //TODO: Make it work on players
+            if (stoppedEntity instanceof PlayerEntity) {
+                continue;
+            }
+
+            UUID uuid = stoppedEntity.getUniqueID();
+
+            stoppedEntitiesID.add(uuid);
+
+            stoppedEntity.setNoGravity(true);
+            savedMotion.put(uuid, stoppedEntity.getMotion());
+            savedPosition.put(uuid, stoppedEntity.getPositionVec());
+            savedRotation.put(uuid, stoppedEntity.getRotationYawHead());
+            stoppedEntity.setMotion(0, 0, 0);
+            stoppedEntity.setSilent(true);
+
+            if (stoppedEntity instanceof LivingEntity) {
+                ((LivingEntity) stoppedEntity).addPotionEffect(new EffectInstance(Effects.GLOWING, timeLeft));
+                if (stoppedEntity instanceof MobEntity) {
+                    ((MobEntity) stoppedEntity).setNoAI(true);
+                }
+            }
+        }
     }
 
     @Override
@@ -37,13 +75,21 @@ public class ThrownTimeStopperEntity extends Entity {
     }
 
     @Override
-    protected void readAdditional(CompoundNBT compound) {
-        timeLeft = compound.getShort("TimeLeft");
+    protected void readAdditional(CompoundNBT nbt) {
+        timeLeft = nbt.getShort("TimeLeft");
+        stoppedEntitiesID = gson.fromJson(nbt.getString("stoppedEntities"), new TypeToken<List<Integer>>(){}.getType());
+        savedMotion = gson.fromJson(nbt.getString("savedMotion"), new TypeToken<Map<Integer, Vec3d>>(){}.getType());
+        savedPosition = gson.fromJson(nbt.getString("savedPosition"), new TypeToken<Map<Integer, Vec3d>>(){}.getType());
+        savedRotation = gson.fromJson(nbt.getString("savedRotation"), new TypeToken<Map<Integer, Float>>(){}.getType());
     }
 
     @Override
-    protected void writeAdditional(CompoundNBT compound) {
-        compound.putShort("TimeLeft", (short) timeLeft);
+    protected void writeAdditional(CompoundNBT nbt) {
+        nbt.putShort("TimeLeft", (short) timeLeft);
+        nbt.putString("stoppedEntities", gson.toJson(stoppedEntitiesID));
+        nbt.putString("savedMotion", gson.toJson(savedMotion));
+        nbt.putString("savedPosition", gson.toJson(savedPosition));
+        nbt.putString("savedRotation", gson.toJson(savedRotation));
     }
 
     @Override
@@ -51,33 +97,13 @@ public class ThrownTimeStopperEntity extends Entity {
         return new SSpawnObjectPacket(this);
     }
 
-    List<Entity> stoppedEntities;
-    Map<Entity, Vec3d> savedMotion = new HashMap<>();
-    Map<Entity, Vec3d> savedPosition = new HashMap<>();
-    Map<Entity, Float> savedRotation = new HashMap<>();
-
     @Override
     public void onAddedToWorld() {
         super.onAddedToWorld();
-        timeLeft = 60;
 
-        stoppedEntities = world.getEntitiesWithinAABBExcludingEntity(this, scanEntities);
-
-        for (Entity stoppedEntity : stoppedEntities) {
-            if (stoppedEntity instanceof PlayerEntity) {
-                continue;
-            }
-            stoppedEntity.setNoGravity(true);
-            savedMotion.put(stoppedEntity, stoppedEntity.getMotion());
-            savedPosition.put(stoppedEntity, stoppedEntity.getPositionVec());
-            savedRotation.put(stoppedEntity, stoppedEntity.getRotationYawHead());
-            stoppedEntity.setMotion(0, 0, 0);
-            stoppedEntity.setSilent(true);
-
-            if (stoppedEntity instanceof MobEntity) {
-                MobEntity mobEntity = (MobEntity) stoppedEntity;
-                mobEntity.setNoAI(true);
-                mobEntity.addPotionEffect(new EffectInstance(Effects.GLOWING, timeLeft));
+        if (world instanceof ServerWorld) {
+            for (UUID id : stoppedEntitiesID) {
+                stoppedEntities.add(((ServerWorld) world).getEntityByUuid(id));
             }
         }
     }
@@ -87,11 +113,8 @@ public class ThrownTimeStopperEntity extends Entity {
         super.onRemovedFromWorld();
 
         for (Entity stoppedEntity : stoppedEntities) {
-            if (stoppedEntity instanceof PlayerEntity) {
-                continue;
-            }
             stoppedEntity.setNoGravity(false);
-            stoppedEntity.setMotion(savedMotion.get(stoppedEntity));
+            stoppedEntity.setMotion(savedMotion.get(stoppedEntity.getUniqueID()));
             stoppedEntity.setSilent(false);
 
             if (stoppedEntity instanceof MobEntity) {
@@ -100,7 +123,6 @@ public class ThrownTimeStopperEntity extends Entity {
         }
     }
 
-
     @Override
     public void tick() {
         super.tick();
@@ -108,13 +130,10 @@ public class ThrownTimeStopperEntity extends Entity {
             timeLeft--;
 
             for (Entity stoppedEntity : stoppedEntities) {
-                if (stoppedEntity instanceof PlayerEntity) {
-                    continue;
-                }
                 stoppedEntity.setMotion(0, 0, 0);
-                Vec3d pos = savedPosition.get(stoppedEntity);
+                Vec3d pos = savedPosition.get(stoppedEntity.getUniqueID());
                 stoppedEntity.setPosition(pos.x, pos.y, pos.z);
-                stoppedEntity.setRotationYawHead(savedRotation.get(stoppedEntity));
+                stoppedEntity.setRotationYawHead(savedRotation.get(stoppedEntity.getUniqueID()));
             }
 
             //Particles don't work idk why
