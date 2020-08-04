@@ -1,0 +1,13 @@
+{
+    "required": true,
+    "package": "xyz.przemyk.timestopper.mixin",
+    "compatibilityLevel": "JAVA_8",
+    "refmap": "mixins.timestopper.refmap.json",
+    "mixins": [
+        "MixinEntity"
+    ],
+    "injectors": {
+        "defaultRequire": 1
+    },
+    "minVersion": "0.8"
+}
