@@ -4,7 +4,8 @@
     "compatibilityLevel": "JAVA_8",
     "refmap": "mixins.timestopper.refmap.json",
     "mixins": [
-        "MixinEntity"
+        "MixinEntity",
+        "MixinWorldRenderer"
     ],
     "injectors": {
         "defaultRequire": 1

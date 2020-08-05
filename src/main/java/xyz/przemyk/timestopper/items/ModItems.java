@@ -6,5 +6,5 @@ import xyz.przemyk.timestopper.TimeStopperMod;
 public class ModItems {
 
     @ObjectHolder(TimeStopperMod.MODID + ":timestopper")
-    public static final TimeStopperItem timeStopperItem = null;
+    public static final TimeStopperItem TIME_STOPPER_ITEM = null;
 }

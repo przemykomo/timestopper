@@ -7,9 +7,9 @@ import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import xyz.przemyk.timestopper.entities.ThrownTimeStopperEntity;
+import xyz.przemyk.timestopper.entities.active.ActiveTimeStopperEntity;
 
-import static xyz.przemyk.timestopper.entities.ThrownTimeStopperEntity.scan;
+import static xyz.przemyk.timestopper.entities.active.ActiveTimeStopperEntity.scan;
 
 @Mixin(Entity.class)
 public abstract class MixinEntity extends net.minecraftforge.common.capabilities.CapabilityProvider<Entity> implements INameable, ICommandSource, net.minecraftforge.common.extensions.IForgeEntity {
@@ -30,6 +30,6 @@ public abstract class MixinEntity extends net.minecraftforge.common.capabilities
 
     @Override
     public boolean canUpdate() {
-        return world.getEntitiesWithinAABB(ThrownTimeStopperEntity.class, scan.offset(field_233557_ao_)).isEmpty() && canUpdate;
+        return world.getEntitiesWithinAABB(ActiveTimeStopperEntity.class, scan.offset(field_233557_ao_)).isEmpty() && canUpdate;
     }
 }
