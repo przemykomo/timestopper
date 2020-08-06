@@ -14,7 +14,7 @@ public class FieldModel extends EntityModel<ActiveTimeStopperEntity> {
 		textureHeight = 64;
 
 		bb_main = new ModelRenderer(this);
-		bb_main.addBox(-8.0F, -8.0F, -8.0F, 16.0F, 16.0F, 16.0F);
+		bb_main.addBox(-8.0F, 0.0F, -8.0F, 16.0F, 16.0F, 16.0F);
 	}
 
 	@Override

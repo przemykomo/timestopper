@@ -20,7 +20,8 @@ public class ActiveTimeStopperEntity extends Entity {
 
     public static final int TICKS_OF_STOPPED_TIME = 60;
 
-    public static final AxisAlignedBB scan = new AxisAlignedBB(-TIME_FIELD_SIZE / 2, -TIME_FIELD_SIZE / 2, -TIME_FIELD_SIZE / 2, TIME_FIELD_SIZE / 2, TIME_FIELD_SIZE / 2, TIME_FIELD_SIZE / 2);
+//    public static final AxisAlignedBB scan = new AxisAlignedBB(-TIME_FIELD_SIZE / 2, -TIME_FIELD_SIZE / 2, -TIME_FIELD_SIZE / 2, TIME_FIELD_SIZE / 2, TIME_FIELD_SIZE / 2, TIME_FIELD_SIZE / 2);
+    public static final AxisAlignedBB scan = new AxisAlignedBB(-0.25, -0.25, -0.25, 0.25, 0.25, 0.25);
 
     private static final DataParameter<Integer> TICKS_LEFT = EntityDataManager.createKey(ActiveTimeStopperEntity.class, DataSerializers.VARINT);
 
@@ -59,9 +60,9 @@ public class ActiveTimeStopperEntity extends Entity {
         int ticksLeft = dataManager.get(TICKS_LEFT);
         if (ticksLeft > 0) {
             dataManager.set(TICKS_LEFT, ticksLeft - 1);
-            for (int i = 0; i < 20; ++i) {
-                world.addParticle(ParticleTypes.ENCHANT, getPosX() + (rand.nextDouble() - 0.5) * TIME_FIELD_SIZE, getPosY() + (rand.nextDouble() - 0.5) * TIME_FIELD_SIZE, getPosZ() + (rand.nextDouble() - 0.5) * TIME_FIELD_SIZE, 0.0, 0.0, 0.0);
-            }
+//            for (int i = 0; i < 20; ++i) {
+//                world.addParticle(ParticleTypes.ENCHANT, getPosX() + (rand.nextDouble() - 0.5) * TIME_FIELD_SIZE, getPosY() + (rand.nextDouble() - 0.5) * TIME_FIELD_SIZE, getPosZ() + (rand.nextDouble() - 0.5) * TIME_FIELD_SIZE, 0.0, 0.0, 0.0);
+//            }
         } else {
             remove();
         }
