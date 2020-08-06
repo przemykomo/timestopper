@@ -45,4 +45,9 @@ public class ThrownTimeStopperEntity extends ProjectileItemEntity {
     public IPacket<?> createSpawnPacket() {
         return NetworkHooks.getEntitySpawningPacket(this);
     }
+
+    @Override
+    public boolean canUpdate() {
+        return true;
+    }
 }

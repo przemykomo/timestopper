@@ -1,8 +1,10 @@
 package xyz.przemyk.timestopper.entities.active;
 
+import net.minecraft.client.renderer.RenderState;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererManager;
+import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.util.ResourceLocation;
 import xyz.przemyk.timestopper.TimeStopperMod;
 
@@ -22,7 +24,7 @@ public class ActiveTimeStopperEntityRenderer extends EntityRenderer<ActiveTimeSt
     }
 
     private final FieldModel fieldModel = new FieldModel();
-    private final RenderType renderType = RenderType.func_230168_b_(fieldTexture, false);
+    private final RenderType renderType = MyRenderState.transparentEntity(fieldTexture, false);
 
     @Override
     public void render(ActiveTimeStopperEntity entityIn, float entityYaw, float partialTicks, MatrixStack matrixStackIn, IRenderTypeBuffer bufferIn, int packedLightIn) {
