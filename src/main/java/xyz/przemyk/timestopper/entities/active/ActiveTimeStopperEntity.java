@@ -60,9 +60,9 @@ public class ActiveTimeStopperEntity extends Entity {
         int ticksLeft = dataManager.get(TICKS_LEFT);
         if (ticksLeft > 0) {
             dataManager.set(TICKS_LEFT, ticksLeft - 1);
-//            for (int i = 0; i < 20; ++i) {
-//                world.addParticle(ParticleTypes.ENCHANT, getPosX() + (rand.nextDouble() - 0.5) * TIME_FIELD_SIZE, getPosY() + (rand.nextDouble() - 0.5) * TIME_FIELD_SIZE, getPosZ() + (rand.nextDouble() - 0.5) * TIME_FIELD_SIZE, 0.0, 0.0, 0.0);
-//            }
+            for (int i = 0; i < 20; ++i) {
+                world.addParticle(ParticleTypes.ENCHANT, getPosX() + (rand.nextDouble() - 0.5) * TIME_FIELD_SIZE, getPosY() + (rand.nextDouble() - 0.5) * TIME_FIELD_SIZE, getPosZ() + (rand.nextDouble() - 0.5) * TIME_FIELD_SIZE, 0.0, 0.0, 0.0);
+            }
         } else {
             remove();
         }
