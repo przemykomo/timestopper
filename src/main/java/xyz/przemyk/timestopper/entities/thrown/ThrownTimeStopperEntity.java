@@ -36,7 +36,7 @@ public class ThrownTimeStopperEntity extends ProjectileItemEntity {
         super.onImpact(result);
         world.addParticle(ParticleTypes.FLASH, getPosX(), getPosY() + 0.5, getPosZ(), 0.0, 0.0, 0.0);
         if (!(world.isRemote() || removed)) {
-            world.addEntity(new ActiveTimeStopperEntity(world, getPositionVec().subtract(0.0, TIME_FIELD_SIZE / 2.0, 0.0)));
+            world.addEntity(new ActiveTimeStopperEntity(world, getPositionVec()));
             remove();
         }
     }

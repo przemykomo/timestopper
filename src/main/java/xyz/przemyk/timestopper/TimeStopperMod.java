@@ -53,7 +53,7 @@ public class TimeStopperMod {
         public static void onEntityRegistry(final RegistryEvent.Register<EntityType<?>> entityRegistryEvent) {
             entityRegistryEvent.getRegistry()
                     .register(EntityType.Builder.create(ActiveTimeStopperEntity::new, EntityClassification.MISC)
-                        .size(12.0F, 12.0F)
+                        .size(0.25F, 0.25F)
                         .setShouldReceiveVelocityUpdates(false)
                         .build("active_timestopper").setRegistryName("active_timestopper"));
 
