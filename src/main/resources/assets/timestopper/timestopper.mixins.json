@@ -5,7 +5,9 @@
     "refmap": "mixins.timestopper.refmap.json",
     "mixins": [
         "MixinEntity",
-        "MixinWorldRenderer"
+        "MixinWorldRenderer",
+        "MixinServerChunkProvider",
+        "MixinClientChunkProvider"
     ],
     "injectors": {
         "defaultRequire": 1
