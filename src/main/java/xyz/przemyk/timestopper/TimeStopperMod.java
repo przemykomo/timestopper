@@ -1,12 +1,19 @@
 package xyz.przemyk.timestopper;
 
+import net.minecraft.block.DispenserBlock;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.entity.SpriteRenderer;
+import net.minecraft.dispenser.IPosition;
+import net.minecraft.dispenser.ProjectileDispenseBehavior;
 import net.minecraft.entity.EntityClassification;
 import net.minecraft.entity.EntityType;
+import net.minecraft.entity.projectile.ProjectileEntity;
+import net.minecraft.entity.projectile.SnowballEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.Util;
+import net.minecraft.world.World;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.client.registry.RenderingRegistry;
@@ -46,7 +53,15 @@ public class TimeStopperMod {
     public static class RegistryEvents {
         @SubscribeEvent
         public static void onItemRegistry(final RegistryEvent.Register<Item> itemRegistryEvent) {
-            itemRegistryEvent.getRegistry().register(new TimeStopperItem());
+            TimeStopperItem timeStopperItem = new TimeStopperItem();
+            itemRegistryEvent.getRegistry().register(timeStopperItem);
+
+            DispenserBlock.registerDispenseBehavior(timeStopperItem, new ProjectileDispenseBehavior() {
+                @Override
+                protected ProjectileEntity getProjectileEntity(World worldIn, IPosition position, ItemStack stackIn) {
+                    return Util.make(new ThrownTimeStopperEntity(worldIn, position.getX(), position.getY(), position.getZ()), entity -> entity.setItem(stackIn));
+                }
+            });
         }
 
         @SubscribeEvent

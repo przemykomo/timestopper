@@ -13,8 +13,6 @@ import xyz.przemyk.timestopper.entities.ModEntities;
 import xyz.przemyk.timestopper.entities.active.ActiveTimeStopperEntity;
 import xyz.przemyk.timestopper.items.ModItems;
 
-import static xyz.przemyk.timestopper.TimeStopperMod.TIME_FIELD_SIZE;
-
 public class ThrownTimeStopperEntity extends ProjectileItemEntity {
     public ThrownTimeStopperEntity(EntityType<? extends ProjectileItemEntity> type, World worldIn) {
         super(type, worldIn);
@@ -23,6 +21,11 @@ public class ThrownTimeStopperEntity extends ProjectileItemEntity {
     @SuppressWarnings("ConstantConditions")
     public ThrownTimeStopperEntity(World world, LivingEntity thrower) {
         super(ModEntities.THROWN_TIME_STOPPER, thrower, world);
+    }
+
+    @SuppressWarnings("ConstantConditions")
+    public ThrownTimeStopperEntity(World worldIn, double x, double y, double z) {
+        super(ModEntities.THROWN_TIME_STOPPER, x, y, z, worldIn);
     }
 
     @Override
