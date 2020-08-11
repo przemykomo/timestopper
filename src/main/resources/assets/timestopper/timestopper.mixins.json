@@ -7,7 +7,8 @@
         "MixinEntity",
         "MixinWorldRenderer",
         "MixinServerChunkProvider",
-        "MixinClientChunkProvider"
+        "MixinClientChunkProvider",
+        "MixinAbstractBlockState"
     ],
     "injectors": {
         "defaultRequire": 1
