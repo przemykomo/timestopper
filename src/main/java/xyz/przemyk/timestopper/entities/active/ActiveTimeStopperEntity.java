@@ -33,11 +33,13 @@ public class ActiveTimeStopperEntity extends Entity {
 
     public ActiveTimeStopperEntity(EntityType<?> entityTypeIn, World worldIn) {
         super(entityTypeIn, worldIn);
+        cachedBlockUpdates = new LinkedList<>();
     }
 
     public ActiveTimeStopperEntity(World worldIn, Vector3d pos) {
         this(ModEntities.ACTIVE_TIME_STOPPER, worldIn);
         setPosition(pos.x, pos.y, pos.z);
+        cachedBlockUpdates = new LinkedList<>();
     }
 
     private static class CachedBlockUpdate {
@@ -56,13 +58,14 @@ public class ActiveTimeStopperEntity extends Entity {
         }
     }
 
-    private final Queue<CachedBlockUpdate> cachedBlockUpdates = new LinkedList<>();
+    private Queue<CachedBlockUpdate> cachedBlockUpdates;
 
     @Override
     protected void registerData() {
         dataManager.register(TICKS_LEFT, TICKS_OF_STOPPED_TIME);
     }
 
+    @SuppressWarnings("ConstantConditions")
     @Override
     protected void writeAdditional(CompoundNBT nbt) {
         nbt.putInt("ticksLeft", dataManager.get(TICKS_LEFT));
@@ -86,13 +89,18 @@ public class ActiveTimeStopperEntity extends Entity {
         }
 
         nbt.put("blockUpdates", blockUpdatesCompound);
+
+        // this somehow saves "blockUpdates"
+        // without this line "blockUpdates" is empty after world relaunch;
+        // TODO: fix it without adding this line somehow?
+        readAdditional(nbt);
     }
 
     @Override
     protected void readAdditional(CompoundNBT nbt) {
         dataManager.set(TICKS_LEFT, nbt.getInt("ticksLeft"));
 
-        CompoundNBT blockUpdatesCompound = nbt.getCompound("blockUpdates"); //TODO: FIX UNSAVED BLOCK UPDATES: this compound is empty, idk why
+        CompoundNBT blockUpdatesCompound = nbt.getCompound("blockUpdates");
         cachedBlockUpdates.clear();
         int i = 0;
         while (blockUpdatesCompound.contains(Integer.toString(i))) {
