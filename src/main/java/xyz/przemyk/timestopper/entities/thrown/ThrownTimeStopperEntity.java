@@ -6,6 +6,7 @@ import net.minecraft.entity.projectile.ProjectileItemEntity;
 import net.minecraft.item.Item;
 import net.minecraft.network.IPacket;
 import net.minecraft.particles.ParticleTypes;
+import net.minecraft.util.SoundEvents;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.network.NetworkHooks;
@@ -40,6 +41,7 @@ public class ThrownTimeStopperEntity extends ProjectileItemEntity {
         world.addParticle(ParticleTypes.FLASH, getPosX(), getPosY() + 0.5, getPosZ(), 0.0, 0.0, 0.0);
         if (!(world.isRemote() || removed)) {
             world.addEntity(new ActiveTimeStopperEntity(world, getPositionVec()));
+            playSound(SoundEvents.ENTITY_SPLASH_POTION_BREAK, 1.0F, 1.0F);
             remove();
         }
     }
