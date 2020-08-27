@@ -10,7 +10,6 @@ import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvents;
 import net.minecraft.world.World;
 import xyz.przemyk.timestopper.TimeStopperMod;
-import xyz.przemyk.timestopper.entities.active.ActiveTimeStopperEntity;
 import xyz.przemyk.timestopper.entities.thrown.ThrownTimeStopperEntity;
 
 public class TimeStopperItem extends Item {

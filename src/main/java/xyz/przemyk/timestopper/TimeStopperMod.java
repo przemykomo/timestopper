@@ -8,7 +8,6 @@ import net.minecraft.dispenser.ProjectileDispenseBehavior;
 import net.minecraft.entity.EntityClassification;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.projectile.ProjectileEntity;
-import net.minecraft.entity.projectile.SnowballEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
