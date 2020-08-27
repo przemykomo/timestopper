@@ -2,6 +2,8 @@ package xyz.przemyk.timestopper;
 
 import net.minecraft.block.DispenserBlock;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.entity.EntityRenderer;
+import net.minecraft.client.renderer.entity.EntityRendererManager;
 import net.minecraft.client.renderer.entity.SpriteRenderer;
 import net.minecraft.dispenser.IPosition;
 import net.minecraft.dispenser.ProjectileDispenseBehavior;
@@ -15,6 +17,7 @@ import net.minecraft.util.Util;
 import net.minecraft.world.World;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.client.registry.IRenderFactory;
 import net.minecraftforge.fml.client.registry.RenderingRegistry;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
@@ -38,7 +41,14 @@ public class TimeStopperMod {
 
     private void clientSetup(FMLClientSetupEvent event) {
         RenderingRegistry.registerEntityRenderingHandler(ModEntities.ACTIVE_TIME_STOPPER, ActiveTimeStopperEntityRenderer::new);
-        RenderingRegistry.registerEntityRenderingHandler(ModEntities.THROWN_TIME_STOPPER, renderManager -> new SpriteRenderer<>(renderManager, Minecraft.getInstance().getItemRenderer()));
+        RenderingRegistry.registerEntityRenderingHandler(ModEntities.THROWN_TIME_STOPPER, new ThrownTimeStopperRenderFactory());
+    }
+
+    private static class ThrownTimeStopperRenderFactory implements IRenderFactory<ThrownTimeStopperEntity> {
+        @Override
+        public EntityRenderer<? super ThrownTimeStopperEntity> createRenderFor(EntityRendererManager manager) {
+            return new SpriteRenderer<>(manager, Minecraft.getInstance().getItemRenderer());
+        }
     }
 
     public static final ItemGroup TIME_STOPPER_ITEM_GROUP = new ItemGroup(ItemGroup.GROUPS.length, "timestoppergroup") {
