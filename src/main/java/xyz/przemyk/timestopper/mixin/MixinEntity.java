@@ -59,4 +59,6 @@ public abstract class MixinEntity extends net.minecraftforge.common.capabilities
             }
         }
     }
+
+    //TODO: overwrite move method so it moves faster/slower when time flows at different rate?
 }

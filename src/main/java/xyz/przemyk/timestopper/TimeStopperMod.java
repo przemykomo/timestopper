@@ -27,7 +27,7 @@ import xyz.przemyk.timestopper.entities.active.ActiveTimeStopperEntity;
 import xyz.przemyk.timestopper.entities.active.ActiveTimeStopperEntityRenderer;
 import xyz.przemyk.timestopper.entities.thrown.ThrownTimeStopperEntity;
 import xyz.przemyk.timestopper.items.ModItems;
-import xyz.przemyk.timestopper.items.TimeStopperItem;
+import xyz.przemyk.timestopper.items.ThrowableTimeStopperItem;
 
 @Mod(TimeStopperMod.MODID)
 public class TimeStopperMod {
@@ -62,10 +62,10 @@ public class TimeStopperMod {
     public static class RegistryEvents {
         @SubscribeEvent
         public static void onItemRegistry(final RegistryEvent.Register<Item> itemRegistryEvent) {
-            TimeStopperItem timeStopperItem = new TimeStopperItem();
-            itemRegistryEvent.getRegistry().register(timeStopperItem);
+            ThrowableTimeStopperItem throwableTimeStopperItem = new ThrowableTimeStopperItem();
+            itemRegistryEvent.getRegistry().register(throwableTimeStopperItem);
 
-            DispenserBlock.registerDispenseBehavior(timeStopperItem, new ProjectileDispenseBehavior() {
+            DispenserBlock.registerDispenseBehavior(throwableTimeStopperItem, new ProjectileDispenseBehavior() {
                 @Override
                 protected ProjectileEntity getProjectileEntity(World worldIn, IPosition position, ItemStack stackIn) {
                     return Util.make(new ThrownTimeStopperEntity(worldIn, position.getX(), position.getY(), position.getZ()), entity -> entity.setItem(stackIn));

@@ -12,15 +12,15 @@ import net.minecraft.world.World;
 import xyz.przemyk.timestopper.TimeStopperMod;
 import xyz.przemyk.timestopper.entities.thrown.ThrownTimeStopperEntity;
 
-public class TimeStopperItem extends Item {
+public class ThrowableTimeStopperItem extends Item {
 
     public boolean hasEffect(ItemStack stack) {
         return true;
     }
 
-    public TimeStopperItem() {
-        super(new Properties().rarity(Rarity.UNCOMMON).group(TimeStopperMod.TIME_STOPPER_ITEM_GROUP));
-        setRegistryName("timestopper");
+    public ThrowableTimeStopperItem() {
+        super(new Properties().rarity(Rarity.UNCOMMON).group(TimeStopperMod.TIME_STOPPER_ITEM_GROUP).maxStackSize(16));
+        setRegistryName("throwable_timestopper");
     }
 
     @Override
