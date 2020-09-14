@@ -6,5 +6,8 @@ import xyz.przemyk.timestopper.TimeStopperMod;
 public class ModItems {
 
     @ObjectHolder(TimeStopperMod.MODID + ":throwable_timestopper")
-    public static final ThrowableTimeStopperItem TIME_STOPPER_ITEM = null;
+    public static final ThrowableTimeStopperItem THROWABLE_TIME_STOPPER_ITEM = null;
+
+    @ObjectHolder(TimeStopperMod.MODID + ":timestopper")
+    public static final TimeStopperItem TIME_STOPPER_ITEM = null;
 }

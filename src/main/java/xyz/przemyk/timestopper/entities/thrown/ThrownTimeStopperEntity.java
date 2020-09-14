@@ -31,7 +31,7 @@ public class ThrownTimeStopperEntity extends ProjectileItemEntity {
 
     @Override
     protected Item getDefaultItem() {
-        return ModItems.TIME_STOPPER_ITEM;
+        return ModItems.THROWABLE_TIME_STOPPER_ITEM;
     }
 
     @SuppressWarnings("deprecation")

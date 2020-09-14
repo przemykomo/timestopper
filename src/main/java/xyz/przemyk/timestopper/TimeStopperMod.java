@@ -21,13 +21,17 @@ import net.minecraftforge.fml.client.registry.IRenderFactory;
 import net.minecraftforge.fml.client.registry.RenderingRegistry;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
+import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import xyz.przemyk.timestopper.capabilities.CapabilityTimeControl;
 import xyz.przemyk.timestopper.entities.ModEntities;
 import xyz.przemyk.timestopper.entities.active.ActiveTimeStopperEntity;
 import xyz.przemyk.timestopper.entities.active.ActiveTimeStopperEntityRenderer;
 import xyz.przemyk.timestopper.entities.thrown.ThrownTimeStopperEntity;
 import xyz.przemyk.timestopper.items.ModItems;
 import xyz.przemyk.timestopper.items.ThrowableTimeStopperItem;
+import xyz.przemyk.timestopper.items.TimeStopperItem;
+import xyz.przemyk.timestopper.network.TimeStopperPacketHandler;
 
 @Mod(TimeStopperMod.MODID)
 public class TimeStopperMod {
@@ -37,6 +41,12 @@ public class TimeStopperMod {
 
     public TimeStopperMod() {
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::clientSetup);
+        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::commonSetup);
+    }
+
+    private void commonSetup(FMLCommonSetupEvent event) {
+        CapabilityTimeControl.register();
+        TimeStopperPacketHandler.registerMessages();
     }
 
     private void clientSetup(FMLClientSetupEvent event) {
@@ -63,7 +73,7 @@ public class TimeStopperMod {
         @SubscribeEvent
         public static void onItemRegistry(final RegistryEvent.Register<Item> itemRegistryEvent) {
             ThrowableTimeStopperItem throwableTimeStopperItem = new ThrowableTimeStopperItem();
-            itemRegistryEvent.getRegistry().register(throwableTimeStopperItem);
+            itemRegistryEvent.getRegistry().registerAll(throwableTimeStopperItem, new TimeStopperItem());
 
             DispenserBlock.registerDispenseBehavior(throwableTimeStopperItem, new ProjectileDispenseBehavior() {
                 @Override
