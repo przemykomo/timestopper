@@ -1,10 +1,5 @@
 package xyz.przemyk.timestopper.items;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
-import net.minecraft.client.renderer.IRenderTypeBuffer;
-import net.minecraft.client.renderer.model.ItemCameraTransforms;
-import net.minecraft.client.renderer.tileentity.ItemStackTileEntityRenderer;
-import net.minecraft.entity.monster.EndermanEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -50,5 +45,22 @@ public class TimeStopperItem extends Item {
         }).orElse(false);
 
         return success ? ActionResult.resultSuccess(playerIn.getHeldItem(handIn)) : ActionResult.resultPass(playerIn.getHeldItem(handIn));
+    }
+
+    @Override
+    public boolean onDroppedByPlayer(ItemStack item, PlayerEntity player) {
+        // I'm not sure what this method does, but I guess that it counts items so that's ideal for this purpose
+        if (player.inventory.func_234564_a_(itemStack -> itemStack.getItem() == this, 0, player.container.func_234641_j_()) == 1) {
+            player.getCapability(CapabilityTimeControl.TIME_CONTROL_CAPABILITY).ifPresent(h -> {
+                if (h.getState() == TimeState.STOPPED) {
+                    h.setState(TimeState.NORMAL);
+                    player.sendStatusMessage(new StringTextComponent(h.getState().name()), true);
+                    if (!player.world.isRemote) {
+                        TimeStopperPacketHandler.INSTANCE.send(PacketDistributor.ALL.noArg(), new PacketChangeTimeState(TimeState.NORMAL, player.getUniqueID()));
+                    }
+                }
+            });
+        }
+        return true;
     }
 }
