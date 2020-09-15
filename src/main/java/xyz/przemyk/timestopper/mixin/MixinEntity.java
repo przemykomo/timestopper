@@ -10,11 +10,9 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import xyz.przemyk.timestopper.entities.active.ActiveTimeStopperEntity;
+import xyz.przemyk.timestopper.TimeStopperMod;
 
 import javax.annotation.Nullable;
-
-import static xyz.przemyk.timestopper.entities.active.ActiveTimeStopperEntity.scan;
 
 @Mixin(Entity.class)
 public abstract class MixinEntity extends net.minecraftforge.common.capabilities.CapabilityProvider<Entity> implements INameable, ICommandSource, net.minecraftforge.common.extensions.IForgeEntity {
@@ -28,12 +26,11 @@ public abstract class MixinEntity extends net.minecraftforge.common.capabilities
 
     @Shadow public World world;
 
-    @Shadow
-    private Vector3d field_233557_ao_; //position
+    @Shadow private Vector3d field_233557_ao_; //position
 
     @Override
     public boolean canUpdate() {
-        return world.getEntitiesWithinAABB(ActiveTimeStopperEntity.class, scan.offset(field_233557_ao_)).isEmpty() && canUpdate;
+        return TimeStopperMod.canUpdateEntity(getEntity()) && canUpdate;
     }
 
     @Shadow public float rotationYaw;
@@ -45,7 +42,7 @@ public abstract class MixinEntity extends net.minecraftforge.common.capabilities
     @SuppressWarnings("unused")
     @OnlyIn(Dist.CLIENT)
     public void rotateTowards(double yaw, double pitch) {
-        if (world.getEntitiesWithinAABB(ActiveTimeStopperEntity.class, scan.offset(field_233557_ao_)).isEmpty()) {
+        if (TimeStopperMod.canUpdateEntity(getEntity())) {
             double d0 = pitch * 0.15D;
             double d1 = yaw * 0.15D;
             this.rotationPitch = (float)((double)this.rotationPitch + d0);

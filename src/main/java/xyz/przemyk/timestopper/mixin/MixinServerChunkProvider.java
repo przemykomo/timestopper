@@ -3,6 +3,7 @@ package xyz.przemyk.timestopper.mixin;
 import com.mojang.datafixers.util.Either;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.chunk.AbstractChunkProvider;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.server.ChunkHolder;
@@ -10,12 +11,10 @@ import net.minecraft.world.server.ServerChunkProvider;
 import net.minecraft.world.server.ServerWorld;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import xyz.przemyk.timestopper.entities.active.ActiveTimeStopperEntity;
+import xyz.przemyk.timestopper.TimeStopperMod;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
-
-import static xyz.przemyk.timestopper.entities.active.ActiveTimeStopperEntity.scan;
 
 @Mixin(ServerChunkProvider.class)
 public abstract class MixinServerChunkProvider extends AbstractChunkProvider {
@@ -35,6 +34,6 @@ public abstract class MixinServerChunkProvider extends AbstractChunkProvider {
 
     public boolean canTick(BlockPos pos) {
         long i = ChunkPos.asLong(pos.getX() >> 4, pos.getZ() >> 4);
-        return this.isChunkLoaded(i, ChunkHolder::getTickingFuture) && world.getEntitiesWithinAABB(ActiveTimeStopperEntity.class, scan.offset(pos)).isEmpty();
+        return this.isChunkLoaded(i, ChunkHolder::getTickingFuture) && TimeStopperMod.canUpdate(new Vector3d(pos.getX(), pos.getY(), pos.getZ()), world);
     }
 }

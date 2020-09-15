@@ -14,11 +14,8 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.network.PacketDistributor;
 import xyz.przemyk.timestopper.capabilities.CapabilityTimeControl;
 import xyz.przemyk.timestopper.capabilities.TimeControlProvider;
-import xyz.przemyk.timestopper.entities.active.ActiveTimeStopperEntity;
 import xyz.przemyk.timestopper.network.PacketChangeTimeState;
 import xyz.przemyk.timestopper.network.TimeStopperPacketHandler;
-
-import static xyz.przemyk.timestopper.entities.active.ActiveTimeStopperEntity.scan;
 
 @Mod.EventBusSubscriber
 public class TimeStopperEvents {
@@ -29,7 +26,7 @@ public class TimeStopperEvents {
             return;
         }
 
-        if (event.isCancelable() && event.getEntity() != null && !event.getEntity().world.getEntitiesWithinAABB(ActiveTimeStopperEntity.class, scan.offset(event.getEntity().getPositionVec())).isEmpty()) {
+        if (event.isCancelable() && event.getEntity() != null && !TimeStopperMod.canUpdateEntity(event.getEntity())) {
             event.setCanceled(true);
         }
     }

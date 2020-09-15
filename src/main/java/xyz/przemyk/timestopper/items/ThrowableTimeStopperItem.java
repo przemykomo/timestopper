@@ -14,10 +14,6 @@ import xyz.przemyk.timestopper.entities.thrown.ThrownTimeStopperEntity;
 
 public class ThrowableTimeStopperItem extends Item {
 
-    public boolean hasEffect(ItemStack stack) {
-        return true;
-    }
-
     public ThrowableTimeStopperItem() {
         super(new Properties().rarity(Rarity.UNCOMMON).group(TimeStopperMod.TIME_STOPPER_ITEM_GROUP).maxStackSize(16));
         setRegistryName("throwable_timestopper");

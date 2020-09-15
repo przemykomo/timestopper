@@ -27,8 +27,6 @@ public class ActiveTimeStopperEntity extends Entity {
 
     public static final int TICKS_OF_STOPPED_TIME = 60;
 
-    public static final AxisAlignedBB scan = new AxisAlignedBB(-TIME_FIELD_SIZE / 2, -TIME_FIELD_SIZE / 2, -TIME_FIELD_SIZE / 2, TIME_FIELD_SIZE / 2, TIME_FIELD_SIZE / 2, TIME_FIELD_SIZE / 2);
-
     private static final DataParameter<Integer> TICKS_LEFT = EntityDataManager.createKey(ActiveTimeStopperEntity.class, DataSerializers.VARINT);
 
     public ActiveTimeStopperEntity(EntityType<?> entityTypeIn, World worldIn) {

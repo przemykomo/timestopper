@@ -3,12 +3,11 @@ package xyz.przemyk.timestopper.mixin;
 import net.minecraft.client.multiplayer.ClientChunkProvider;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.chunk.AbstractChunkProvider;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import xyz.przemyk.timestopper.entities.active.ActiveTimeStopperEntity;
-
-import static xyz.przemyk.timestopper.entities.active.ActiveTimeStopperEntity.scan;
+import xyz.przemyk.timestopper.TimeStopperMod;
 
 @Mixin(ClientChunkProvider.class)
 public abstract class MixinClientChunkProvider extends AbstractChunkProvider {
@@ -21,6 +20,6 @@ public abstract class MixinClientChunkProvider extends AbstractChunkProvider {
     private final ClientWorld world;
 
     public boolean canTick(BlockPos pos) {
-        return this.chunkExists(pos.getX() >> 4, pos.getZ() >> 4) && world.getEntitiesWithinAABB(ActiveTimeStopperEntity.class, scan.offset(pos)).isEmpty();
+        return this.chunkExists(pos.getX() >> 4, pos.getZ() >> 4) && TimeStopperMod.canUpdate(new Vector3d(pos.getX(), pos.getY(), pos.getZ()), world);
     }
 }
