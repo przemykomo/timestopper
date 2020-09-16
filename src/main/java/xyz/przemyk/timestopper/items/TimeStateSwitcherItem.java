@@ -7,40 +7,33 @@ import net.minecraft.item.Rarity;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.network.PacketDistributor;
 import xyz.przemyk.timestopper.TimeStopperMod;
 import xyz.przemyk.timestopper.capabilities.CapabilityTimeControl;
 import xyz.przemyk.timestopper.capabilities.TimeState;
-import xyz.przemyk.timestopper.network.PacketChangeTimeState;
-import xyz.przemyk.timestopper.network.TimeStopperPacketHandler;
 
-public class TimeStopperItem extends Item {
+public class TimeStateSwitcherItem extends Item {
 
-    public TimeStopperItem() {
+    public final TimeState OTHER_STATE;
+
+    public TimeStateSwitcherItem(TimeState timeState) {
         super(new Properties().rarity(Rarity.EPIC).group(TimeStopperMod.TIME_STOPPER_ITEM_GROUP).maxStackSize(1));
-        setRegistryName("timestopper");
+        OTHER_STATE = timeState;
     }
 
     @Override
     public ActionResult<ItemStack> onItemRightClick(World worldIn, PlayerEntity playerIn, Hand handIn) {
-        //TODO: use translated text component
         boolean success = playerIn.getCapability(CapabilityTimeControl.TIME_CONTROL_CAPABILITY).map(h -> {
             if (h.getState() == TimeState.NORMAL) {
-                h.setState(TimeState.STOPPED);
-                playerIn.sendStatusMessage(new StringTextComponent(h.getState().name()), true);
-                if (!worldIn.isRemote) {
-                    TimeStopperPacketHandler.INSTANCE.send(PacketDistributor.ALL.noArg(), new PacketChangeTimeState(h.getState(), playerIn.getUniqueID()));
-                }
-                return true;
-            } else if (h.getState() == TimeState.STOPPED) {
-                h.setState(TimeState.NORMAL);
-                playerIn.sendStatusMessage(new StringTextComponent(h.getState().name()), true);
-                if (!worldIn.isRemote) {
-                    TimeStopperPacketHandler.INSTANCE.send(PacketDistributor.ALL.noArg(), new PacketChangeTimeState(h.getState(), playerIn.getUniqueID()));
-                }
+                TimeStopperMod.setTimeState(playerIn, OTHER_STATE, h);
                 return true;
             }
+            if (h.getState() == OTHER_STATE) {
+                TimeStopperMod.setTimeState(playerIn, TimeState.NORMAL, h);
+                return true;
+            }
+            playerIn.sendStatusMessage(new TranslationTextComponent("info." + TimeStopperMod.MODID + ".cannot_change_state"), true);
             return false;
         }).orElse(false);
 
@@ -52,12 +45,8 @@ public class TimeStopperItem extends Item {
         // I'm not sure what this method does, but I guess that it counts items so that's ideal for this purpose
         if (player.inventory.func_234564_a_(itemStack -> itemStack.getItem() == this, 0, player.container.func_234641_j_()) == 1) {
             player.getCapability(CapabilityTimeControl.TIME_CONTROL_CAPABILITY).ifPresent(h -> {
-                if (h.getState() == TimeState.STOPPED) {
-                    h.setState(TimeState.NORMAL);
-                    player.sendStatusMessage(new StringTextComponent(h.getState().name()), true);
-                    if (!player.world.isRemote) {
-                        TimeStopperPacketHandler.INSTANCE.send(PacketDistributor.ALL.noArg(), new PacketChangeTimeState(TimeState.NORMAL, player.getUniqueID()));
-                    }
+                if (h.getState() == OTHER_STATE) {
+                    TimeStopperMod.setTimeState(player, TimeState.NORMAL, h);
                 }
             });
         }

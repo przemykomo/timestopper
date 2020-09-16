@@ -6,10 +6,10 @@ import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ICapabilitySerializable;
 import net.minecraftforge.common.util.LazyOptional;
 
-public class TimeControlProvider implements ICapabilitySerializable<CompoundNBT> {
+public class TimeStateHandlerProvider implements ICapabilitySerializable<CompoundNBT> {
 
-    private final TimeControl timeControl = new TimeControl();
-    private final LazyOptional<ITimeControl> timeControlOptional = LazyOptional.of(() -> timeControl);
+    private final TimeStateHandler timeControl = new TimeStateHandler();
+    private final LazyOptional<ITimeStateHandler> timeControlOptional = LazyOptional.of(() -> timeControl);
 
     public void invalidate() {
         timeControlOptional.invalidate();

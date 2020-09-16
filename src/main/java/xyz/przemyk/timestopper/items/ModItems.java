@@ -9,5 +9,5 @@ public class ModItems {
     public static final ThrowableTimeStopperItem THROWABLE_TIME_STOPPER_ITEM = null;
 
     @ObjectHolder(TimeStopperMod.MODID + ":timestopper")
-    public static final TimeStopperItem TIME_STOPPER_ITEM = null;
+    public static final TimeStateSwitcherItem TIME_STOPPER_ITEM = null;
 }

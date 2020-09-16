@@ -1,5 +1,15 @@
 {
+    "itemGroup.timestoppergroup": "Time Stopper",
+
     "item.timestopper.throwable_timestopper": "Throwable Time Stopper",
     "item.timestopper.timestopper": "Time Stopper",
-    "itemGroup.timestoppergroup": "Time Stopper"
+    "item.timestopper.timeaccelerator": "Time Accelerator",
+    "item.timestopper.timedecelerator": "Time Decelerator",
+
+
+    "info.timestopper.cannot_change_state": "Cannot change time state",
+    "info.timestopper.normal_speed": "Normal time speed",
+    "info.timestopper.fast_speed": "Fast time speed",
+    "info.timestopper.slow_speed": "Slow time speed",
+    "info.timestopper.stopped_time": "Stopped time"
 }

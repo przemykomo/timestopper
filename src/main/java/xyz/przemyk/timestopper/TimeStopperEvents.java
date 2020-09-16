@@ -13,7 +13,7 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.network.PacketDistributor;
 import xyz.przemyk.timestopper.capabilities.CapabilityTimeControl;
-import xyz.przemyk.timestopper.capabilities.TimeControlProvider;
+import xyz.przemyk.timestopper.capabilities.TimeStateHandlerProvider;
 import xyz.przemyk.timestopper.network.PacketChangeTimeState;
 import xyz.przemyk.timestopper.network.TimeStopperPacketHandler;
 
@@ -34,7 +34,7 @@ public class TimeStopperEvents {
     @SubscribeEvent
     public static void attachCapabilitiesEvent(AttachCapabilitiesEvent<Entity> event) {
         if (event.getObject() instanceof PlayerEntity) {
-            TimeControlProvider provider = new TimeControlProvider();
+            TimeStateHandlerProvider provider = new TimeStateHandlerProvider();
             event.addCapability(new ResourceLocation(TimeStopperMod.MODID, "time_control"), provider);
             event.addListener(provider::invalidate);
         }

@@ -1,6 +1,6 @@
 package xyz.przemyk.timestopper.capabilities;
 
-public interface ITimeControl {
+public interface ITimeStateHandler {
     void setState(TimeState state);
     TimeState getState();
 }

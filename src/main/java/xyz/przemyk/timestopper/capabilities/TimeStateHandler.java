@@ -1,6 +1,6 @@
 package xyz.przemyk.timestopper.capabilities;
 
-public class TimeControl implements ITimeControl {
+public class TimeStateHandler implements ITimeStateHandler {
 
     private TimeState timeState = TimeState.NORMAL;
 

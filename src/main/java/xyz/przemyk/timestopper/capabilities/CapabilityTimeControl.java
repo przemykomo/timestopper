@@ -9,24 +9,24 @@ import net.minecraftforge.common.capabilities.CapabilityManager;
 
 public class CapabilityTimeControl {
 
-    @CapabilityInject(ITimeControl.class)
-    public static Capability<ITimeControl> TIME_CONTROL_CAPABILITY = null;
+    @CapabilityInject(ITimeStateHandler.class)
+    public static Capability<ITimeStateHandler> TIME_CONTROL_CAPABILITY = null;
 
     public static void register() {
-        CapabilityManager.INSTANCE.register(ITimeControl.class, new Storage(), TimeControl::new);
+        CapabilityManager.INSTANCE.register(ITimeStateHandler.class, new Storage(), TimeStateHandler::new);
     }
 
-    public static class Storage implements Capability.IStorage<ITimeControl> {
+    public static class Storage implements Capability.IStorage<ITimeStateHandler> {
 
         @Override
-        public INBT writeNBT(Capability<ITimeControl> capability, ITimeControl instance, Direction side) {
+        public INBT writeNBT(Capability<ITimeStateHandler> capability, ITimeStateHandler instance, Direction side) {
             CompoundNBT tag = new CompoundNBT();
             tag.putString("timeState", instance.getState().name());
             return tag;
         }
 
         @Override
-        public void readNBT(Capability<ITimeControl> capability, ITimeControl instance, Direction side, INBT nbt) {
+        public void readNBT(Capability<ITimeStateHandler> capability, ITimeStateHandler instance, Direction side, INBT nbt) {
             instance.setState(TimeState.valueOf(((CompoundNBT) nbt).getString("timeState")));
         }
     }

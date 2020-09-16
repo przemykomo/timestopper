@@ -26,8 +26,6 @@ public abstract class MixinEntity extends net.minecraftforge.common.capabilities
 
     @Shadow public World world;
 
-    @Shadow private Vector3d field_233557_ao_; //position
-
     @Override
     public boolean canUpdate() {
         return TimeStopperMod.canUpdateEntity(getEntity()) && canUpdate;

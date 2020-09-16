@@ -18,6 +18,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.Util;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.world.World;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -27,7 +28,9 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraftforge.fml.network.PacketDistributor;
 import xyz.przemyk.timestopper.capabilities.CapabilityTimeControl;
+import xyz.przemyk.timestopper.capabilities.ITimeStateHandler;
 import xyz.przemyk.timestopper.capabilities.TimeState;
 import xyz.przemyk.timestopper.entities.ModEntities;
 import xyz.przemyk.timestopper.entities.active.ActiveTimeStopperEntity;
@@ -35,7 +38,8 @@ import xyz.przemyk.timestopper.entities.active.ActiveTimeStopperEntityRenderer;
 import xyz.przemyk.timestopper.entities.thrown.ThrownTimeStopperEntity;
 import xyz.przemyk.timestopper.items.ModItems;
 import xyz.przemyk.timestopper.items.ThrowableTimeStopperItem;
-import xyz.przemyk.timestopper.items.TimeStopperItem;
+import xyz.przemyk.timestopper.items.TimeStateSwitcherItem;
+import xyz.przemyk.timestopper.network.PacketChangeTimeState;
 import xyz.przemyk.timestopper.network.TimeStopperPacketHandler;
 
 @Mod(TimeStopperMod.MODID)
@@ -79,7 +83,11 @@ public class TimeStopperMod {
         @SubscribeEvent
         public static void onItemRegistry(final RegistryEvent.Register<Item> itemRegistryEvent) {
             ThrowableTimeStopperItem throwableTimeStopperItem = new ThrowableTimeStopperItem();
-            itemRegistryEvent.getRegistry().registerAll(throwableTimeStopperItem, new TimeStopperItem());
+            itemRegistryEvent.getRegistry().registerAll(throwableTimeStopperItem,
+                    new TimeStateSwitcherItem(TimeState.STOPPED).setRegistryName("timestopper"),
+                    new TimeStateSwitcherItem(TimeState.FAST).setRegistryName("timeaccelerator"),
+                    new TimeStateSwitcherItem(TimeState.SLOW).setRegistryName("timedecelerator")
+            );
 
             DispenserBlock.registerDispenseBehavior(throwableTimeStopperItem, new ProjectileDispenseBehavior() {
                 @Override
@@ -134,7 +142,14 @@ public class TimeStopperMod {
                 return false;
             }
         }
-
         return true;
+    }
+
+    public static void setTimeState(PlayerEntity player, TimeState timeState, ITimeStateHandler timeStateHandler) {
+        timeStateHandler.setState(timeState);
+        player.sendStatusMessage(timeStateHandler.getState().toTextComponent(), true);
+        if (!player.world.isRemote) {
+            TimeStopperPacketHandler.INSTANCE.send(PacketDistributor.ALL.noArg(), new PacketChangeTimeState(timeState, player.getUniqueID()));
+        }
     }
 }
