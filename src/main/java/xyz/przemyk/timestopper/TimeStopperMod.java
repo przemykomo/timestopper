@@ -18,7 +18,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.Util;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.world.World;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -150,6 +149,20 @@ public class TimeStopperMod {
         player.sendStatusMessage(timeStateHandler.getState().toTextComponent(), true);
         if (!player.world.isRemote) {
             TimeStopperPacketHandler.INSTANCE.send(PacketDistributor.ALL.noArg(), new PacketChangeTimeState(timeState, player.getUniqueID()));
+        }
+    }
+
+    //TODO: move time state detection to some other generic method so there won't be duplicates in canUpdate and here
+    public static void updateEntity(Entity entity) {
+        if (entity.canUpdate()) {
+            entity.tick();
+
+            for (PlayerEntity playerEntity : entity.world.getEntitiesWithinAABB(PlayerEntity.class, scan.offset(entity.getPositionVec()))) {
+                if (playerEntity.getCapability(CapabilityTimeControl.TIME_CONTROL_CAPABILITY).map(h -> h.getState() == TimeState.FAST).orElse(false)) {
+                    entity.tick(); // tick entity twice if time state is fast
+                    return;
+                }
+            }
         }
     }
 }

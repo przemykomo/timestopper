@@ -4,7 +4,6 @@ import net.minecraft.command.ICommandSource;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.INameable;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -54,6 +53,4 @@ public abstract class MixinEntity extends net.minecraftforge.common.capabilities
             }
         }
     }
-
-    //TODO: overwrite move method so it moves faster/slower when time flows at different rate?
 }
