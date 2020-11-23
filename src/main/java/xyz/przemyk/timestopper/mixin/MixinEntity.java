@@ -4,7 +4,6 @@ import net.minecraft.command.ICommandSource;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.INameable;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.spongepowered.asm.mixin.Mixin;
@@ -22,8 +21,6 @@ public abstract class MixinEntity extends net.minecraftforge.common.capabilities
 
     @SuppressWarnings("FieldMayBeFinal")
     @Shadow private boolean canUpdate = true;
-
-    @Shadow public World world;
 
     @Override
     public boolean canUpdate() {

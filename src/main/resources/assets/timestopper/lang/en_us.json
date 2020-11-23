@@ -1,11 +1,9 @@
 {
     "itemGroup.timestoppergroup": "Time Stopper",
 
-    "item.timestopper.throwable_timestopper": "Throwable Time Stopper",
     "item.timestopper.timestopper": "Time Stopper",
     "item.timestopper.timeaccelerator": "Time Accelerator",
     "item.timestopper.timedecelerator": "Time Decelerator",
-
 
     "info.timestopper.cannot_change_state": "Cannot change time state",
     "info.timestopper.normal_speed": "Normal time speed",

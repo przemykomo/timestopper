@@ -9,6 +9,7 @@ import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.server.ChunkHolder;
 import net.minecraft.world.server.ServerChunkProvider;
 import net.minecraft.world.server.ServerWorld;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import xyz.przemyk.timestopper.TimeStopperMod;
@@ -19,12 +20,9 @@ import java.util.function.Function;
 @Mixin(ServerChunkProvider.class)
 public abstract class MixinServerChunkProvider extends AbstractChunkProvider {
 
-    protected MixinServerChunkProvider(ServerWorld world) {
-        this.world = world;
-    }
-
+    @Final
     @Shadow
-    public final ServerWorld world;
+    public ServerWorld world;
 
     @SuppressWarnings("unused")
     @Shadow

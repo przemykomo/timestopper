@@ -11,10 +11,6 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import xyz.przemyk.timestopper.TimeStopperMod;
-import xyz.przemyk.timestopper.entities.active.ActiveTimeStopperEntity;
-
-import java.util.List;
 
 @SuppressWarnings({"unused", "deprecation"})
 @Mixin(AbstractBlock.AbstractBlockState.class)
@@ -30,12 +26,6 @@ public abstract class MixinAbstractBlockState extends StateHolder<Block, BlockSt
 
     //TODO: work with capability
     public void neighborChanged(World worldIn, BlockPos posIn, Block blockIn, BlockPos fromPosIn, boolean isMoving) {
-        List<ActiveTimeStopperEntity> activeTimeStoppers = worldIn.getEntitiesWithinAABB(ActiveTimeStopperEntity.class, TimeStopperMod.scan.offset(posIn));
-        if (activeTimeStoppers.isEmpty()) {
-            this.getBlock().neighborChanged(this.getSelf(), worldIn, posIn, blockIn, fromPosIn, isMoving);
-            return;
-        }
-
-        activeTimeStoppers.get(0).catchBlockUpdate(getBlock(), posIn, blockIn, fromPosIn, isMoving);
+        this.getBlock().neighborChanged(this.getSelf(), worldIn, posIn, blockIn, fromPosIn, isMoving);
     }
 }

@@ -11,8 +11,8 @@ import java.util.function.Supplier;
 
 public class PacketChangeTimeState {
 
-    private TimeState timeState;
-    private UUID playerUUID;
+    private final TimeState timeState;
+    private final UUID playerUUID;
 
     public PacketChangeTimeState(TimeState state, UUID playerUUID) {
         this.timeState = state;
@@ -29,10 +29,10 @@ public class PacketChangeTimeState {
         buffer.writeUniqueId(playerUUID);
     }
 
+    @SuppressWarnings("ConstantConditions")
     public void handle(Supplier<NetworkEvent.Context> ctx) {
-        ctx.get().enqueueWork(() -> {
-            Minecraft.getInstance().world.getPlayerByUuid(playerUUID).getCapability(CapabilityTimeControl.TIME_CONTROL_CAPABILITY).ifPresent(h -> h.setState(timeState));
-        });
+        ctx.get().enqueueWork(() ->
+                Minecraft.getInstance().world.getPlayerByUuid(playerUUID).getCapability(CapabilityTimeControl.TIME_CONTROL_CAPABILITY).ifPresent(h -> h.setState(timeState)));
         ctx.get().setPacketHandled(true);
     }
 }

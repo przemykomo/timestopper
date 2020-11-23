@@ -1,13 +1,13 @@
 package xyz.przemyk.timestopper.mixin;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.client.renderer.WorldRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererManager;
 import net.minecraft.entity.Entity;
 import net.minecraft.resources.IResourceManagerReloadListener;
 import net.minecraft.util.math.MathHelper;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 
@@ -15,12 +15,9 @@ import org.spongepowered.asm.mixin.Shadow;
 @Mixin(WorldRenderer.class)
 public abstract class MixinWorldRenderer implements IResourceManagerReloadListener, AutoCloseable {
 
-    public MixinWorldRenderer(Minecraft mcIn) {
-        this.renderManager = mcIn.getRenderManager();
-    }
-
+    @Final
     @Shadow
-    private final EntityRendererManager renderManager;
+    private EntityRendererManager renderManager;
 
     private void renderEntity(Entity entityIn, double camX, double camY, double camZ, float partialTicks, MatrixStack matrixStackIn, IRenderTypeBuffer bufferIn) {
         double d0 = MathHelper.lerp(partialTicks, entityIn.lastTickPosX, entityIn.getPosX());
