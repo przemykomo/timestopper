@@ -1,4 +1,4 @@
-package xyz.przemyk.timestopper.capabilities;
+package xyz.przemyk.timestopper.capabilities.control;
 
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.INBT;

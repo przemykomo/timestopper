@@ -23,7 +23,7 @@ public abstract class MixinEntity extends net.minecraftforge.common.capabilities
     @Shadow private boolean canUpdate = true;
 
     @Override
-    public boolean canUpdate() {
+    public boolean canUpdate() { //TODO?
         return TimeStopperMod.canUpdateEntity(getEntity()) && canUpdate;
     }
 

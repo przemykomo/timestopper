@@ -39,7 +39,7 @@ public abstract class MixinClientWorld extends World {
             if (entityIn.addedToChunk || entityIn.isSpectator()) {
                 ++entityIn.ticksExisted;
                 this.getProfiler().startSection(() -> Registry.ENTITY_TYPE.getKey(entityIn.getType()).toString());
-                TimeStopperMod.updateEntity(entityIn);
+                TimeStopperMod.updateEntity(entityIn, false);
                 this.getProfiler().endSection();
             }
 

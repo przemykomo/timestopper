@@ -47,7 +47,7 @@ public abstract class MixinServerWorld extends World implements ISeedReader, net
                 IProfiler iprofiler = this.getProfiler();
                 iprofiler.startSection(() -> entityIn.getType().getRegistryName() == null ? entityIn.getType().toString() : entityIn.getType().getRegistryName().toString());
                 iprofiler.func_230035_c_("tickNonPassenger");
-                TimeStopperMod.updateEntity(entityIn);
+                TimeStopperMod.updateEntity(entityIn, true);
                 iprofiler.endSection();
             }
 

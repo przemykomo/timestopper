@@ -1,4 +1,4 @@
-package xyz.przemyk.timestopper.capabilities;
+package xyz.przemyk.timestopper.capabilities.control;
 
 public class TimeStateHandler implements ITimeStateHandler {
 

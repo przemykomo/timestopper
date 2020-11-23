@@ -14,13 +14,17 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.fml.network.PacketDistributor;
-import xyz.przemyk.timestopper.capabilities.CapabilityTimeControl;
-import xyz.przemyk.timestopper.capabilities.ITimeStateHandler;
-import xyz.przemyk.timestopper.capabilities.TimeState;
+import xyz.przemyk.timestopper.capabilities.control.CapabilityTimeControl;
+import xyz.przemyk.timestopper.capabilities.control.ITimeStateHandler;
+import xyz.przemyk.timestopper.capabilities.control.TimeState;
+import xyz.przemyk.timestopper.capabilities.tick.CapabilityConditionalTick;
 import xyz.przemyk.timestopper.items.ModItems;
 import xyz.przemyk.timestopper.items.TimeStateSwitcherItem;
+import xyz.przemyk.timestopper.network.PacketChangeConditionalTick;
 import xyz.przemyk.timestopper.network.PacketChangeTimeState;
 import xyz.przemyk.timestopper.network.TimeStopperPacketHandler;
+
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Mod(TimeStopperMod.MODID)
 public class TimeStopperMod {
@@ -35,6 +39,7 @@ public class TimeStopperMod {
 
     private void commonSetup(FMLCommonSetupEvent event) {
         CapabilityTimeControl.register();
+        CapabilityConditionalTick.register();
         TimeStopperPacketHandler.registerMessages();
     }
 
@@ -92,15 +97,36 @@ public class TimeStopperMod {
     }
 
     //TODO: move time state detection to some other generic method so there won't be duplicates in canUpdate and here
-    public static void updateEntity(Entity entity) {
+    public static void updateEntity(Entity entity, boolean server) {
         if (entity.canUpdate()) {
-            entity.tick();
+
+            AtomicInteger fastTimeCounter = new AtomicInteger();
 
             for (PlayerEntity playerEntity : entity.world.getEntitiesWithinAABB(PlayerEntity.class, scan.offset(entity.getPositionVec()))) {
-                if (playerEntity.getCapability(CapabilityTimeControl.TIME_CONTROL_CAPABILITY).map(h -> h.getState() == TimeState.FAST).orElse(false)) {
+                playerEntity.getCapability(CapabilityTimeControl.TIME_CONTROL_CAPABILITY).ifPresent(h -> {
+                    if (h.getState() == TimeState.FAST) {
+                        fastTimeCounter.incrementAndGet();
+                    } else if (h.getState() == TimeState.SLOW) {
+                        fastTimeCounter.decrementAndGet();
+                    }
+                });
+            }
+
+            if (fastTimeCounter.get() >= 0) {
+                entity.tick();
+                if (fastTimeCounter.get() > 0) {
                     entity.tick(); // tick entity twice if time state is fast
-                    return;
                 }
+            } else {
+                entity.getCapability(CapabilityConditionalTick.CONDITIONAL_TICK_CAPABILITY).ifPresent(h -> {
+                    if (h.canTick()) { //TODO I probably don't need to use new capability, I could use entity.ticksExisted
+                        entity.tick();
+                    }
+                    h.switchState();
+                    if (server) {
+                        TimeStopperPacketHandler.INSTANCE.send(PacketDistributor.ALL.noArg(), new PacketChangeConditionalTick(h.canTick(), entity.getEntityId()));
+                    }
+                });
             }
         }
     }

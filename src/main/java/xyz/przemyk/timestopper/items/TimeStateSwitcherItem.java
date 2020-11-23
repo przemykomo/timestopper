@@ -6,12 +6,11 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.Rarity;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
-import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.World;
 import xyz.przemyk.timestopper.TimeStopperMod;
-import xyz.przemyk.timestopper.capabilities.CapabilityTimeControl;
-import xyz.przemyk.timestopper.capabilities.TimeState;
+import xyz.przemyk.timestopper.capabilities.control.CapabilityTimeControl;
+import xyz.przemyk.timestopper.capabilities.control.TimeState;
 
 public class TimeStateSwitcherItem extends Item {
 

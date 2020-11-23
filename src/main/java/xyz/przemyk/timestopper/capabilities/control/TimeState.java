@@ -1,4 +1,4 @@
-package xyz.przemyk.timestopper.capabilities;
+package xyz.przemyk.timestopper.capabilities.control;
 
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TextComponent;

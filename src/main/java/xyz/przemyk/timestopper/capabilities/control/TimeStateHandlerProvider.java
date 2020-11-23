@@ -1,4 +1,4 @@
-package xyz.przemyk.timestopper.capabilities;
+package xyz.przemyk.timestopper.capabilities.control;
 
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.Direction;
@@ -17,16 +17,20 @@ public class TimeStateHandlerProvider implements ICapabilitySerializable<Compoun
 
     @Override
     public <T> LazyOptional<T> getCapability(Capability<T> cap, Direction side) {
-        return timeControlOptional.cast();
+        if (cap == CapabilityTimeControl.TIME_CONTROL_CAPABILITY) {
+            return timeControlOptional.cast();
+        }
+
+        return LazyOptional.empty();
     }
 
     @Override
     public CompoundNBT serializeNBT() {
         if (CapabilityTimeControl.TIME_CONTROL_CAPABILITY == null) {
             return new CompoundNBT();
-        } else {
-            return (CompoundNBT) CapabilityTimeControl.TIME_CONTROL_CAPABILITY.writeNBT(timeControl, null);
         }
+
+        return (CompoundNBT) CapabilityTimeControl.TIME_CONTROL_CAPABILITY.writeNBT(timeControl, null);
     }
 
     @Override

@@ -27,5 +27,12 @@ public class TimeStopperPacketHandler {
                 PacketChangeTimeState::new,
                 PacketChangeTimeState::handle,
                 Optional.of(NetworkDirection.PLAY_TO_CLIENT));
+
+        INSTANCE.registerMessage(ID++,
+                PacketChangeConditionalTick.class,
+                PacketChangeConditionalTick::toBytes,
+                PacketChangeConditionalTick::new,
+                PacketChangeConditionalTick::handle,
+                Optional.of(NetworkDirection.PLAY_TO_CLIENT));
     }
 }

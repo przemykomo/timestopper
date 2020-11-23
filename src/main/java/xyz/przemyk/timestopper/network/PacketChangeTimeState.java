@@ -1,10 +1,11 @@
 package xyz.przemyk.timestopper.network;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.network.PacketBuffer;
 import net.minecraftforge.fml.network.NetworkEvent;
-import xyz.przemyk.timestopper.capabilities.CapabilityTimeControl;
-import xyz.przemyk.timestopper.capabilities.TimeState;
+import xyz.przemyk.timestopper.capabilities.control.CapabilityTimeControl;
+import xyz.przemyk.timestopper.capabilities.control.TimeState;
 
 import java.util.UUID;
 import java.util.function.Supplier;
@@ -31,8 +32,14 @@ public class PacketChangeTimeState {
 
     @SuppressWarnings("ConstantConditions")
     public void handle(Supplier<NetworkEvent.Context> ctx) {
-        ctx.get().enqueueWork(() ->
-                Minecraft.getInstance().world.getPlayerByUuid(playerUUID).getCapability(CapabilityTimeControl.TIME_CONTROL_CAPABILITY).ifPresent(h -> h.setState(timeState)));
-        ctx.get().setPacketHandled(true);
+        NetworkEvent.Context context = ctx.get();
+        context.enqueueWork(() -> {
+            PlayerEntity playerEntity = Minecraft.getInstance().world.getPlayerByUuid(playerUUID);
+            if (playerEntity != null) {
+                playerEntity.getCapability(CapabilityTimeControl.TIME_CONTROL_CAPABILITY).ifPresent(h -> h.setState(timeState));
+            }
+        });
+        
+        context.setPacketHandled(true);
     }
 }
