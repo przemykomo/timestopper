@@ -13,8 +13,6 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.network.PacketDistributor;
 import xyz.przemyk.timestopper.capabilities.control.TimeStateHandlerProvider;
-import xyz.przemyk.timestopper.capabilities.tick.ConditionalTickHandlerProvider;
-import xyz.przemyk.timestopper.network.PacketChangeConditionalTick;
 import xyz.przemyk.timestopper.network.PacketChangeTimeState;
 import xyz.przemyk.timestopper.network.TimeStopperPacketHandler;
 
@@ -39,10 +37,6 @@ public class TimeStopperEvents {
             event.addCapability(new ResourceLocation(TimeStopperMod.MODID, "time_control"), provider);
             event.addListener(provider::invalidate);
         }
-
-        ConditionalTickHandlerProvider provider = new ConditionalTickHandlerProvider();
-        event.addCapability(new ResourceLocation(TimeStopperMod.MODID, "conditional_tick"), provider);
-        event.addListener(provider::invalidate);
     }
 
     @SubscribeEvent
@@ -51,8 +45,6 @@ public class TimeStopperEvents {
         if (!playerEntity.level.isClientSide) {
             playerEntity.getCapability(TimeStateHandlerProvider.TIME_STATE_CAP).ifPresent(handler ->
                     TimeStopperPacketHandler.INSTANCE.send(PacketDistributor.ALL.noArg(), new PacketChangeTimeState(handler.timeState, playerEntity.getUUID())));
-            playerEntity.getCapability(ConditionalTickHandlerProvider.CONDITIONAL_TICK_CAP).ifPresent(handler ->
-                    TimeStopperPacketHandler.INSTANCE.send(PacketDistributor.ALL.noArg(), new PacketChangeConditionalTick(handler.canTick, playerEntity.getId())));
         }
     }
 }

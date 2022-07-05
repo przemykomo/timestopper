@@ -32,7 +32,7 @@ public abstract class MixinServerWorld extends Level implements WorldGenLevel {
         ++p_8648_.tickCount;
         this.getProfiler().push(() -> Registry.ENTITY_TYPE.getKey(p_8648_.getType()).toString());
         profilerfiller.incrementCounter("tickNonPassenger");
-        TimeStopperMod.updateEntity(p_8648_, true);
+        TimeStopperMod.updateEntity(p_8648_);
         this.getProfiler().pop();
 
         for(Entity entity : p_8648_.getPassengers()) {

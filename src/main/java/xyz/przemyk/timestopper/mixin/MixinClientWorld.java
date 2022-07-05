@@ -31,7 +31,7 @@ public abstract class MixinClientWorld extends Level {
         this.getProfiler().push(() -> {
             return Registry.ENTITY_TYPE.getKey(p_104640_.getType()).toString();
         });
-        TimeStopperMod.updateEntity(p_104640_, false);
+        TimeStopperMod.updateEntity(p_104640_);
         this.getProfiler().pop();
 
         for(Entity entity : p_104640_.getPassengers()) {

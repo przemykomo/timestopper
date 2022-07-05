@@ -74,7 +74,7 @@ public class TimeStopperMod {
     }
 
     //TODO: move time state detection to some other generic method so there won't be duplicates in canUpdate and here
-    public static void updateEntity(Entity entity, boolean server) {
+    public static void updateEntity(Entity entity) {
         if (entity.canUpdate()) {
 
             AtomicInteger fastTimeCounter = new AtomicInteger();
