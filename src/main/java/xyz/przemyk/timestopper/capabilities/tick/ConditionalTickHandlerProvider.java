@@ -1,27 +1,34 @@
 package xyz.przemyk.timestopper.capabilities.tick;
 
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.Direction;
+import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.common.capabilities.CapabilityManager;
+import net.minecraftforge.common.capabilities.CapabilityToken;
 import net.minecraftforge.common.capabilities.ICapabilitySerializable;
 import net.minecraftforge.common.util.LazyOptional;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public class ConditionalTickHandlerProvider implements ICapabilitySerializable<CompoundNBT> {
+public class ConditionalTickHandlerProvider implements ICapabilitySerializable<CompoundTag> {
 
-    private final ConditionalTickHandler conditionalTickHandler = new ConditionalTickHandler();
-    private final LazyOptional<IConditionalTickHandler> handlerLazyOptional = LazyOptional.of(() -> conditionalTickHandler);
+    public static final Capability<ConditionalTickHandler> CONDITIONAL_TICK_CAP = CapabilityManager.get(new CapabilityToken<>() {});
 
-    public void invalidate() {
-        handlerLazyOptional.invalidate();
+    private ConditionalTickHandler conditionalTickHandler = null;
+    private final LazyOptional<ConditionalTickHandler> handlerLazyOptional = LazyOptional.of(() -> conditionalTickHandler);
+
+    private ConditionalTickHandler createConditionalTickHandler() {
+        if (conditionalTickHandler == null) {
+            conditionalTickHandler = new ConditionalTickHandler();
+        }
+        return conditionalTickHandler;
     }
 
     @Nonnull
     @Override
     public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> cap, @Nullable Direction side) {
-        if (cap == CapabilityConditionalTick.CONDITIONAL_TICK_CAPABILITY) {
+        if (cap == CONDITIONAL_TICK_CAP) {
             return handlerLazyOptional.cast();
         }
 
@@ -29,18 +36,18 @@ public class ConditionalTickHandlerProvider implements ICapabilitySerializable<C
     }
 
     @Override
-    public CompoundNBT serializeNBT() {
-        if (CapabilityConditionalTick.CONDITIONAL_TICK_CAPABILITY == null) {
-            return new CompoundNBT();
-        }
-
-        return (CompoundNBT) CapabilityConditionalTick.CONDITIONAL_TICK_CAPABILITY.writeNBT(conditionalTickHandler, null);
+    public CompoundTag serializeNBT() {
+        CompoundTag compoundTag = new CompoundTag();
+        createConditionalTickHandler().save(compoundTag);
+        return compoundTag;
     }
 
     @Override
-    public void deserializeNBT(CompoundNBT nbt) {
-        if (CapabilityConditionalTick.CONDITIONAL_TICK_CAPABILITY != null) {
-            CapabilityConditionalTick.CONDITIONAL_TICK_CAPABILITY.readNBT(conditionalTickHandler, null, nbt);
-        }
+    public void deserializeNBT(CompoundTag compoundTag) {
+        createConditionalTickHandler().load(compoundTag);
+    }
+
+    public void invalidate() {
+        handlerLazyOptional.invalidate();
     }
 }

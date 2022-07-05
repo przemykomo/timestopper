@@ -1,55 +1,42 @@
 package xyz.przemyk.timestopper.mixin;
 
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.profiler.IProfiler;
-import net.minecraft.util.RegistryKey;
-import net.minecraft.util.registry.Registry;
-import net.minecraft.world.DimensionType;
-import net.minecraft.world.World;
-import net.minecraft.world.storage.ISpawnWorldInfo;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.core.Holder;
+import net.minecraft.core.Registry;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.util.profiling.ProfilerFiller;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.dimension.DimensionType;
+import net.minecraft.world.level.storage.WritableLevelData;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import xyz.przemyk.timestopper.TimeStopperMod;
 
 import java.util.function.Supplier;
 
-@SuppressWarnings({"deprecation", "unused"})
-@Mixin(ClientWorld.class)
-public abstract class MixinClientWorld extends World {
+@Mixin(ClientLevel.class)
+public abstract class MixinClientWorld extends Level {
 
-    protected MixinClientWorld(ISpawnWorldInfo p_i241925_1_, RegistryKey<World> p_i241925_2_, DimensionType p_i241925_3_, Supplier<IProfiler> p_i241925_4_, boolean p_i241925_5_, boolean p_i241925_6_, long p_i241925_7_) {
-        super(p_i241925_1_, p_i241925_2_, p_i241925_3_, p_i241925_4_, p_i241925_5_, p_i241925_6_, p_i241925_7_);
+    @Shadow protected abstract void tickPassenger(Entity p_104642_, Entity p_104643_);
+
+    protected MixinClientWorld(WritableLevelData p_220352_, ResourceKey<Level> p_220353_, Holder<DimensionType> p_220354_, Supplier<ProfilerFiller> p_220355_, boolean p_220356_, boolean p_220357_, long p_220358_, int p_220359_) {
+        super(p_220352_, p_220353_, p_220354_, p_220355_, p_220356_, p_220357_, p_220358_, p_220359_);
     }
 
-    @Shadow
-    private void checkChunk(Entity entityIn) {}
+    @SuppressWarnings("unused")
+    public void tickNonPassenger(Entity p_104640_) {
+        p_104640_.setOldPosAndRot();
+        ++p_104640_.tickCount;
+        this.getProfiler().push(() -> {
+            return Registry.ENTITY_TYPE.getKey(p_104640_.getType()).toString();
+        });
+        TimeStopperMod.updateEntity(p_104640_, false);
+        this.getProfiler().pop();
 
-    @Shadow
-    public void updateEntityRidden(Entity p_217420_1_, Entity p_217420_2_) {}
-
-    public void updateEntity(Entity entityIn) {
-        if (!(entityIn instanceof PlayerEntity) && !this.getChunkProvider().isChunkLoaded(entityIn)) {
-            this.checkChunk(entityIn);
-        } else {
-            entityIn.forceSetPosition(entityIn.getPosX(), entityIn.getPosY(), entityIn.getPosZ());
-            entityIn.prevRotationYaw = entityIn.rotationYaw;
-            entityIn.prevRotationPitch = entityIn.rotationPitch;
-            if (entityIn.addedToChunk || entityIn.isSpectator()) {
-                ++entityIn.ticksExisted;
-                this.getProfiler().startSection(() -> Registry.ENTITY_TYPE.getKey(entityIn.getType()).toString());
-                TimeStopperMod.updateEntity(entityIn, false);
-                this.getProfiler().endSection();
-            }
-
-            this.checkChunk(entityIn);
-            if (entityIn.addedToChunk) {
-                for(Entity entity : entityIn.getPassengers()) {
-                    this.updateEntityRidden(entityIn, entity);
-                }
-            }
-
+        for(Entity entity : p_104640_.getPassengers()) {
+            this.tickPassenger(p_104640_, entity);
         }
+
     }
 }

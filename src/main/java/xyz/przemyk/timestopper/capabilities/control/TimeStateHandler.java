@@ -1,16 +1,20 @@
 package xyz.przemyk.timestopper.capabilities.control;
 
-public class TimeStateHandler implements ITimeStateHandler {
+import net.minecraft.nbt.CompoundTag;
 
-    private TimeState timeState = TimeState.NORMAL;
+public class TimeStateHandler {
 
-    @Override
-    public void setState(TimeState state) {
-        timeState = state;
+    public TimeState timeState = TimeState.NORMAL;
+
+    public void copyFrom(TimeStateHandler source) {
+        timeState = source.timeState;
     }
 
-    @Override
-    public TimeState getState() {
-        return timeState;
+    public void save(CompoundTag compoundTag) {
+        compoundTag.putString("timeState", timeState.name());
+    }
+
+    public void load(CompoundTag compoundTag) {
+        timeState = TimeState.valueOf(compoundTag.getString("timeState"));
     }
 }

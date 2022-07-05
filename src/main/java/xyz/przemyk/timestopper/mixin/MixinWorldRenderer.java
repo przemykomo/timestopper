@@ -1,29 +1,29 @@
 package xyz.przemyk.timestopper.mixin;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
-import net.minecraft.client.renderer.IRenderTypeBuffer;
-import net.minecraft.client.renderer.WorldRenderer;
-import net.minecraft.client.renderer.entity.EntityRendererManager;
-import net.minecraft.entity.Entity;
-import net.minecraft.resources.IResourceManagerReloadListener;
-import net.minecraft.util.math.MathHelper;
+import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.renderer.LevelRenderer;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
+import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
+import net.minecraft.util.Mth;
+import net.minecraft.world.entity.Entity;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 
-@SuppressWarnings({"deprecation", "unused"})
-@Mixin(WorldRenderer.class)
-public abstract class MixinWorldRenderer implements IResourceManagerReloadListener, AutoCloseable {
+@Mixin(LevelRenderer.class)
+public abstract class MixinWorldRenderer implements ResourceManagerReloadListener, AutoCloseable {
 
     @Final
     @Shadow
-    private EntityRendererManager renderManager;
+    private EntityRenderDispatcher entityRenderDispatcher;
 
-    private void renderEntity(Entity entityIn, double camX, double camY, double camZ, float partialTicks, MatrixStack matrixStackIn, IRenderTypeBuffer bufferIn) {
-        double d0 = MathHelper.lerp(partialTicks, entityIn.lastTickPosX, entityIn.getPosX());
-        double d1 = MathHelper.lerp(partialTicks, entityIn.lastTickPosY, entityIn.getPosY());
-        double d2 = MathHelper.lerp(partialTicks, entityIn.lastTickPosZ, entityIn.getPosZ());
-        float f = MathHelper.lerp(partialTicks, entityIn.prevRotationYaw, entityIn.rotationYaw);
-        this.renderManager.renderEntityStatic(entityIn, d0 - camX, d1 - camY, d2 - camZ, f, entityIn.canUpdate() ? partialTicks : 1.0f, matrixStackIn, bufferIn, this.renderManager.getPackedLight(entityIn, partialTicks));
+    @SuppressWarnings("unused")
+    private void renderEntity(Entity entityIn, double camX, double camY, double camZ, float partialTicks, PoseStack poseStack, MultiBufferSource bufferIn) {
+        double d0 = Mth.lerp(partialTicks, entityIn.xOld, entityIn.getX());
+        double d1 = Mth.lerp(partialTicks, entityIn.yOld, entityIn.getY());
+        double d2 = Mth.lerp(partialTicks, entityIn.zOld, entityIn.getZ());
+        float f = Mth.lerp(partialTicks, entityIn.yRotO, entityIn.getYRot());
+        this.entityRenderDispatcher.render(entityIn, d0 - camX, d1 - camY, d2 - camZ, f, entityIn.canUpdate() ? partialTicks : 1.0f, poseStack, bufferIn, this.entityRenderDispatcher.getPackedLightCoords(entityIn, partialTicks));
     }
 }

@@ -1,11 +1,10 @@
 package xyz.przemyk.timestopper.mixin;
 
-import net.minecraft.command.ICommandSource;
-import net.minecraft.entity.Entity;
-import net.minecraft.util.INameable;
-import net.minecraft.util.math.MathHelper;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraft.commands.CommandSource;
+import net.minecraft.util.Mth;
+import net.minecraft.world.Nameable;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.entity.EntityAccess;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import xyz.przemyk.timestopper.TimeStopperMod;
@@ -13,7 +12,7 @@ import xyz.przemyk.timestopper.TimeStopperMod;
 import javax.annotation.Nullable;
 
 @Mixin(Entity.class)
-public abstract class MixinEntity extends net.minecraftforge.common.capabilities.CapabilityProvider<Entity> implements INameable, ICommandSource, net.minecraftforge.common.extensions.IForgeEntity {
+public abstract class MixinEntity extends net.minecraftforge.common.capabilities.CapabilityProvider<Entity> implements Nameable, EntityAccess, CommandSource, net.minecraftforge.common.extensions.IForgeEntity {
 
     protected MixinEntity(Class<Entity> baseClass) {
         super(baseClass);
@@ -24,29 +23,28 @@ public abstract class MixinEntity extends net.minecraftforge.common.capabilities
 
     @Override
     public boolean canUpdate() { //TODO?
-        return TimeStopperMod.canUpdateEntity(getEntity()) && canUpdate;
+        return TimeStopperMod.canUpdateEntity((Entity) (Object) this) && canUpdate;
     }
 
-    @Shadow public float rotationYaw;
-    @Shadow public float rotationPitch;
-    @Shadow public float prevRotationYaw;
-    @Shadow public float prevRotationPitch;
-    @Shadow @Nullable private Entity ridingEntity;
+    @Shadow private float yRot;
+    @Shadow private float xRot;
+    @Shadow public float yRotO;
+    @Shadow public float xRotO;
+    @Shadow @Nullable private Entity vehicle;
 
     @SuppressWarnings("unused")
-    @OnlyIn(Dist.CLIENT)
-    public void rotateTowards(double yaw, double pitch) {
-        if (TimeStopperMod.canUpdateEntity(getEntity())) {
+    public void turn(double yaw, double pitch) {
+        if (TimeStopperMod.canUpdateEntity((Entity) (Object) this)) {
             double d0 = pitch * 0.15D;
             double d1 = yaw * 0.15D;
-            this.rotationPitch = (float)((double)this.rotationPitch + d0);
-            this.rotationYaw = (float)((double)this.rotationYaw + d1);
-            this.rotationPitch = MathHelper.clamp(this.rotationPitch, -90.0F, 90.0F);
-            this.prevRotationPitch = (float)((double)this.prevRotationPitch + d0);
-            this.prevRotationYaw = (float)((double)this.prevRotationYaw + d1);
-            this.prevRotationPitch = MathHelper.clamp(this.prevRotationPitch, -90.0F, 90.0F);
-            if (this.ridingEntity != null) {
-                this.ridingEntity.applyOrientationToEntity(getEntity());
+            this.xRot = (float)((double)this.xRot + d0);
+            this.yRot = (float)((double)this.yRot + d1);
+            this.xRot = Mth.clamp(this.xRot, -90.0F, 90.0F);
+            this.xRotO = (float)((double)this.xRotO + d0);
+            this.yRotO = (float)((double)this.yRotO + d1);
+            this.xRotO = Mth.clamp(this.xRotO, -90.0F, 90.0F);
+            if (this.vehicle != null) {
+                this.vehicle.onPassengerTurned((Entity) (Object) this);
             }
         }
     }

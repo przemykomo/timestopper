@@ -1,8 +1,7 @@
 package xyz.przemyk.timestopper.capabilities.control;
 
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import xyz.przemyk.timestopper.TimeStopperMod;
 
 public enum TimeState {
@@ -11,18 +10,12 @@ public enum TimeState {
     FAST,
     SLOW;
 
-    public TextComponent toTextComponent() {
-        switch (this) {
-            case NORMAL:
-                return new TranslationTextComponent("info." + TimeStopperMod.MODID + ".normal_speed");
-            case FAST:
-                return new TranslationTextComponent("info." + TimeStopperMod.MODID + ".fast_speed");
-            case SLOW:
-                return new TranslationTextComponent("info." + TimeStopperMod.MODID + ".slow_speed");
-            case STOPPED:
-                return new TranslationTextComponent("info." + TimeStopperMod.MODID + ".stopped_time");
-            default:
-                return new StringTextComponent("invalid time state");
-        }
+    public MutableComponent toTextComponent() {
+        return switch (this) {
+            case NORMAL -> Component.translatable("info." + TimeStopperMod.MODID + ".normal_speed");
+            case FAST -> Component.translatable("info." + TimeStopperMod.MODID + ".fast_speed");
+            case SLOW -> Component.translatable("info." + TimeStopperMod.MODID + ".slow_speed");
+            case STOPPED -> Component.translatable("info." + TimeStopperMod.MODID + ".stopped_time");
+        };
     }
 }

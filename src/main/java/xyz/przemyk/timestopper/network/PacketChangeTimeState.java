@@ -1,11 +1,11 @@
 package xyz.przemyk.timestopper.network;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.NetworkEvent;
-import xyz.przemyk.timestopper.capabilities.control.CapabilityTimeControl;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.entity.player.Player;
+import net.minecraftforge.network.NetworkEvent;
 import xyz.przemyk.timestopper.capabilities.control.TimeState;
+import xyz.przemyk.timestopper.capabilities.control.TimeStateHandlerProvider;
 
 import java.util.UUID;
 import java.util.function.Supplier;
@@ -20,23 +20,23 @@ public class PacketChangeTimeState {
         this.playerUUID = playerUUID;
     }
 
-    public PacketChangeTimeState(PacketBuffer buffer) {
+    public PacketChangeTimeState(FriendlyByteBuf buffer) {
         timeState = TimeState.values()[buffer.readVarInt()];
-        playerUUID = buffer.readUniqueId();
+        playerUUID = buffer.readUUID();
     }
 
-    public void toBytes(PacketBuffer buffer) {
+    public void toBytes(FriendlyByteBuf buffer) {
         buffer.writeVarInt(timeState.ordinal());
-        buffer.writeUniqueId(playerUUID);
+        buffer.writeUUID(playerUUID);
     }
 
     @SuppressWarnings("ConstantConditions")
     public void handle(Supplier<NetworkEvent.Context> ctx) {
         NetworkEvent.Context context = ctx.get();
         context.enqueueWork(() -> {
-            PlayerEntity playerEntity = Minecraft.getInstance().world.getPlayerByUuid(playerUUID);
+            Player playerEntity = Minecraft.getInstance().level.getPlayerByUUID(playerUUID);
             if (playerEntity != null) {
-                playerEntity.getCapability(CapabilityTimeControl.TIME_CONTROL_CAPABILITY).ifPresent(h -> h.setState(timeState));
+                playerEntity.getCapability(TimeStateHandlerProvider.TIME_STATE_CAP).ifPresent(handler -> handler.timeState = this.timeState);
             }
         });
         

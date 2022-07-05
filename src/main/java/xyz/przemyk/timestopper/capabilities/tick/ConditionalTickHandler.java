@@ -1,21 +1,20 @@
 package xyz.przemyk.timestopper.capabilities.tick;
 
-public class ConditionalTickHandler implements IConditionalTickHandler {
+import net.minecraft.nbt.CompoundTag;
 
-    private boolean canTick;
+public class ConditionalTickHandler {
 
-    @Override
-    public boolean canTick() {
-        return canTick;
+    public boolean canTick = true;
+
+    public void copyFrom(ConditionalTickHandler source) {
+        canTick = source.canTick;
     }
 
-    @Override
-    public void setCanTick(boolean canTick) {
-        this.canTick = canTick;
+    public void save(CompoundTag compoundTag) {
+        compoundTag.putBoolean("canTick", canTick);
     }
 
-    @Override
-    public void switchState() {
-        canTick = !canTick;
+    public void load(CompoundTag compoundTag) {
+        canTick = compoundTag.getBoolean("canTick");
     }
 }

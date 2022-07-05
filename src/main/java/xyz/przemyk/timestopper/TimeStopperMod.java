@@ -1,28 +1,21 @@
 package xyz.przemyk.timestopper;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemGroup;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.World;
-import net.minecraftforge.event.RegistryEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
-import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import net.minecraftforge.fml.network.PacketDistributor;
-import xyz.przemyk.timestopper.capabilities.control.CapabilityTimeControl;
-import xyz.przemyk.timestopper.capabilities.control.ITimeStateHandler;
+import net.minecraftforge.network.PacketDistributor;
 import xyz.przemyk.timestopper.capabilities.control.TimeState;
-import xyz.przemyk.timestopper.capabilities.tick.CapabilityConditionalTick;
-import xyz.przemyk.timestopper.items.ModItems;
-import xyz.przemyk.timestopper.items.TimeStateSwitcherItem;
-import xyz.przemyk.timestopper.network.PacketChangeConditionalTick;
+import xyz.przemyk.timestopper.capabilities.control.TimeStateHandler;
+import xyz.przemyk.timestopper.capabilities.control.TimeStateHandlerProvider;
 import xyz.przemyk.timestopper.network.PacketChangeTimeState;
 import xyz.przemyk.timestopper.network.TimeStopperPacketHandler;
+import xyz.przemyk.timestopper.setup.TimeStopperCapabilities;
+import xyz.przemyk.timestopper.setup.TimeStopperItems;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -31,42 +24,26 @@ public class TimeStopperMod {
 
     public static final String MODID = "timestopper";
     public static final float TIME_FIELD_SIZE = 12.0f;
-    public static final AxisAlignedBB scan = new AxisAlignedBB(-TIME_FIELD_SIZE / 2, -TIME_FIELD_SIZE / 2, -TIME_FIELD_SIZE / 2, TIME_FIELD_SIZE / 2, TIME_FIELD_SIZE / 2, TIME_FIELD_SIZE / 2);
+    public static final AABB scan = new AABB(-TIME_FIELD_SIZE / 2, -TIME_FIELD_SIZE / 2, -TIME_FIELD_SIZE / 2, TIME_FIELD_SIZE / 2, TIME_FIELD_SIZE / 2, TIME_FIELD_SIZE / 2);
 
     public TimeStopperMod() {
-        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::commonSetup);
+        TimeStopperPacketHandler.init();
+        TimeStopperItems.init();
+        TimeStopperCapabilities.init();
     }
 
-    private void commonSetup(FMLCommonSetupEvent event) {
-        CapabilityTimeControl.register();
-        CapabilityConditionalTick.register();
-        TimeStopperPacketHandler.registerMessages();
-    }
-
-    public static final ItemGroup TIME_STOPPER_ITEM_GROUP = new ItemGroup(ItemGroup.GROUPS.length, "timestoppergroup") {
+    public static final CreativeModeTab TIME_STOPPER_ITEM_GROUP = new CreativeModeTab(MODID) {
         @Override
-        public ItemStack createIcon() {
-            return new ItemStack(ModItems.TIME_STOPPER_ITEM);
+        public ItemStack makeIcon() {
+            return TimeStopperItems.STOPPER.get().getDefaultInstance();
         }
     };
 
-    @Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD)
-    public static class RegistryEvents {
-        @SubscribeEvent
-        public static void onItemRegistry(final RegistryEvent.Register<Item> itemRegistryEvent) {
-            itemRegistryEvent.getRegistry().registerAll(
-                    new TimeStateSwitcherItem(TimeState.STOPPED).setRegistryName("timestopper"),
-                    new TimeStateSwitcherItem(TimeState.FAST).setRegistryName("timeaccelerator"),
-                    new TimeStateSwitcherItem(TimeState.SLOW).setRegistryName("timedecelerator")
-            );
-        }
-    }
+    public static boolean canUpdate(Vec3 position, Level world) {
+        AABB toScan = scan.move(position);
 
-    public static boolean canUpdate(Vector3d position, World world) {
-        AxisAlignedBB toScan = scan.offset(position);
-
-        for (PlayerEntity playerEntity : world.getEntitiesWithinAABB(PlayerEntity.class, toScan)) {
-            if (playerEntity.getCapability(CapabilityTimeControl.TIME_CONTROL_CAPABILITY).map(h -> h.getState() == TimeState.STOPPED).orElse(false)) {
+        for (Player playerEntity : world.getEntitiesOfClass(Player.class, toScan)) {
+            if (playerEntity.getCapability(TimeStateHandlerProvider.TIME_STATE_CAP).map(h -> h.timeState == TimeState.STOPPED).orElse(false)) {
                 return false;
             }
         }
@@ -75,24 +52,24 @@ public class TimeStopperMod {
     }
 
     public static boolean canUpdateEntity(Entity entity) {
-        AxisAlignedBB toScan = scan.offset(entity.getPositionVec());
+        AABB toScan = scan.move(entity.position());
 
-        for (PlayerEntity playerEntity : entity.world.getEntitiesWithinAABB(PlayerEntity.class, toScan)) {
+        for (Player playerEntity : entity.level.getEntitiesOfClass(Player.class, toScan)) {
             if (playerEntity == entity) {
                 continue;
             }
-            if (playerEntity.getCapability(CapabilityTimeControl.TIME_CONTROL_CAPABILITY).map(h -> h.getState() == TimeState.STOPPED).orElse(false)) {
+            if (playerEntity.getCapability(TimeStateHandlerProvider.TIME_STATE_CAP).map(h -> h.timeState == TimeState.STOPPED).orElse(false)) {
                 return false;
             }
         }
         return true;
     }
 
-    public static void setTimeState(PlayerEntity player, TimeState timeState, ITimeStateHandler timeStateHandler) {
-        timeStateHandler.setState(timeState);
-        player.sendStatusMessage(timeStateHandler.getState().toTextComponent(), true);
-        if (!player.world.isRemote) {
-            TimeStopperPacketHandler.INSTANCE.send(PacketDistributor.ALL.noArg(), new PacketChangeTimeState(timeState, player.getUniqueID()));
+    public static void setTimeState(Player player, TimeState timeState, TimeStateHandler timeStateHandler) {
+        timeStateHandler.timeState = timeState;
+        player.displayClientMessage(timeStateHandler.timeState.toTextComponent(), true);
+        if (!player.level.isClientSide) {
+            TimeStopperPacketHandler.INSTANCE.send(PacketDistributor.ALL.noArg(), new PacketChangeTimeState(timeState, player.getUUID()));
         }
     }
 
@@ -102,14 +79,16 @@ public class TimeStopperMod {
 
             AtomicInteger fastTimeCounter = new AtomicInteger();
 
-            for (PlayerEntity playerEntity : entity.world.getEntitiesWithinAABB(PlayerEntity.class, scan.offset(entity.getPositionVec()))) {
-                playerEntity.getCapability(CapabilityTimeControl.TIME_CONTROL_CAPABILITY).ifPresent(h -> {
-                    if (h.getState() == TimeState.FAST) {
-                        fastTimeCounter.incrementAndGet();
-                    } else if (h.getState() == TimeState.SLOW) {
-                        fastTimeCounter.decrementAndGet();
-                    }
-                });
+            for (Player playerEntity : entity.level.getEntitiesOfClass(Player.class, scan.move(entity.position()))) {
+                if (entity != playerEntity) {
+                    playerEntity.getCapability(TimeStateHandlerProvider.TIME_STATE_CAP).ifPresent(handler -> {
+                        if (handler.timeState == TimeState.FAST) {
+                            fastTimeCounter.incrementAndGet();
+                        } else if (handler.timeState == TimeState.SLOW) {
+                            fastTimeCounter.decrementAndGet();
+                        }
+                    });
+                }
             }
 
             if (fastTimeCounter.get() >= 0) {
@@ -118,15 +97,9 @@ public class TimeStopperMod {
                     entity.tick(); // tick entity twice if time state is fast
                 }
             } else {
-                entity.getCapability(CapabilityConditionalTick.CONDITIONAL_TICK_CAPABILITY).ifPresent(h -> {
-                    if (h.canTick()) { //TODO I probably don't need to use new capability, I could use entity.ticksExisted
-                        entity.tick();
-                    }
-                    h.switchState();
-                    if (server) {
-                        TimeStopperPacketHandler.INSTANCE.send(PacketDistributor.ALL.noArg(), new PacketChangeConditionalTick(h.canTick(), entity.getEntityId()));
-                    }
-                });
+                if (entity.level.getGameTime() % 2 == 0) {
+                    entity.tick();
+                }
             }
         }
     }

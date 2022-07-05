@@ -1,14 +1,11 @@
 {
     "required": true,
     "package": "xyz.przemyk.timestopper.mixin",
-    "compatibilityLevel": "JAVA_8",
-    "refmap": "mixins.timestopper.refmap.json",
+    "compatibilityLevel": "JAVA_17",
+    "refmap": "timestopper.refmap.json",
     "mixins": [
-        "MixinAbstractBlockState",
-        "MixinClientChunkProvider",
         "MixinClientWorld",
         "MixinEntity",
-        "MixinServerChunkProvider",
         "MixinServerWorld",
         "MixinWorldRenderer"
     ],

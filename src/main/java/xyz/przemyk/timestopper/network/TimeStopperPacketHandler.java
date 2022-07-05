@@ -1,9 +1,9 @@
 package xyz.przemyk.timestopper.network;
 
-import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.fml.network.NetworkDirection;
-import net.minecraftforge.fml.network.NetworkRegistry;
-import net.minecraftforge.fml.network.simple.SimpleChannel;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraftforge.network.NetworkDirection;
+import net.minecraftforge.network.NetworkRegistry;
+import net.minecraftforge.network.simple.SimpleChannel;
 import xyz.przemyk.timestopper.TimeStopperMod;
 
 import java.util.Optional;
@@ -13,7 +13,7 @@ public class TimeStopperPacketHandler {
     public static SimpleChannel INSTANCE;
     private static int ID = 0;
 
-    public static void registerMessages() {
+    public static void init() {
         INSTANCE = NetworkRegistry.newSimpleChannel(
                 new ResourceLocation(TimeStopperMod.MODID, "main"),
                 () -> PROTOCOL_VERSION,

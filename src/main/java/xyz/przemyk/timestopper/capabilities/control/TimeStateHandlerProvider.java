@@ -1,42 +1,49 @@
 package xyz.przemyk.timestopper.capabilities.control;
 
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.Direction;
+import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.common.capabilities.CapabilityManager;
+import net.minecraftforge.common.capabilities.CapabilityToken;
 import net.minecraftforge.common.capabilities.ICapabilitySerializable;
 import net.minecraftforge.common.util.LazyOptional;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-public class TimeStateHandlerProvider implements ICapabilitySerializable<CompoundNBT> {
+public class TimeStateHandlerProvider implements ICapabilitySerializable<CompoundTag> {
 
-    private final TimeStateHandler timeControl = new TimeStateHandler();
-    private final LazyOptional<ITimeStateHandler> timeControlOptional = LazyOptional.of(() -> timeControl);
+    public static final Capability<TimeStateHandler> TIME_STATE_CAP = CapabilityManager.get(new CapabilityToken<>() {});
+    private TimeStateHandler timeStateHandler = null;
+    private final LazyOptional<TimeStateHandler> timeStateHandlerLazyOptional = LazyOptional.of(this::createTimeStateHandler);
 
-    public void invalidate() {
-        timeControlOptional.invalidate();
+    private TimeStateHandler createTimeStateHandler() {
+        if (timeStateHandler == null) {
+            timeStateHandler = new TimeStateHandler();
+        }
+        return timeStateHandler;
     }
 
     @Override
-    public <T> LazyOptional<T> getCapability(Capability<T> cap, Direction side) {
-        if (cap == CapabilityTimeControl.TIME_CONTROL_CAPABILITY) {
-            return timeControlOptional.cast();
+    public @NotNull <T> LazyOptional<T> getCapability(@NotNull Capability<T> cap, @Nullable Direction side) {
+        if (cap == TIME_STATE_CAP) {
+            return timeStateHandlerLazyOptional.cast();
         }
-
         return LazyOptional.empty();
     }
 
     @Override
-    public CompoundNBT serializeNBT() {
-        if (CapabilityTimeControl.TIME_CONTROL_CAPABILITY == null) {
-            return new CompoundNBT();
-        }
-
-        return (CompoundNBT) CapabilityTimeControl.TIME_CONTROL_CAPABILITY.writeNBT(timeControl, null);
+    public CompoundTag serializeNBT() {
+        CompoundTag compoundTag = new CompoundTag();
+        createTimeStateHandler().save(compoundTag);
+        return compoundTag;
     }
 
     @Override
-    public void deserializeNBT(CompoundNBT nbt) {
-        if (CapabilityTimeControl.TIME_CONTROL_CAPABILITY != null) {
-            CapabilityTimeControl.TIME_CONTROL_CAPABILITY.readNBT(timeControl, null, nbt);
-        }
+    public void deserializeNBT(CompoundTag compoundTag) {
+        createTimeStateHandler().load(compoundTag);
+    }
+
+    public void invalidate() {
+        timeStateHandlerLazyOptional.invalidate();
     }
 }

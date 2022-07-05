@@ -1,10 +1,10 @@
 package xyz.przemyk.timestopper.network;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.entity.Entity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.NetworkEvent;
-import xyz.przemyk.timestopper.capabilities.tick.CapabilityConditionalTick;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.entity.Entity;
+import net.minecraftforge.network.NetworkEvent;
+import xyz.przemyk.timestopper.capabilities.tick.ConditionalTickHandlerProvider;
 
 import java.util.function.Supplier;
 
@@ -18,12 +18,12 @@ public class PacketChangeConditionalTick {
         this.entityID = entityUUID;
     }
 
-    public PacketChangeConditionalTick(PacketBuffer buffer) {
+    public PacketChangeConditionalTick(FriendlyByteBuf buffer) {
         canTick = buffer.readBoolean();
         entityID = buffer.readVarInt();
     }
 
-    public void toBytes(PacketBuffer buffer) {
+    public void toBytes(FriendlyByteBuf buffer) {
         buffer.writeBoolean(canTick);
         buffer.writeVarInt(entityID);
     }
@@ -32,9 +32,9 @@ public class PacketChangeConditionalTick {
     public void handle(Supplier<NetworkEvent.Context> ctx) {
         NetworkEvent.Context context = ctx.get();
         context.enqueueWork(() -> {
-            Entity entity = Minecraft.getInstance().world.getEntityByID(entityID);
+            Entity entity = Minecraft.getInstance().level.getEntity(entityID);
             if (entity != null) {
-                entity.getCapability(CapabilityConditionalTick.CONDITIONAL_TICK_CAPABILITY).ifPresent(h -> h.setCanTick(canTick));
+                entity.getCapability(ConditionalTickHandlerProvider.CONDITIONAL_TICK_CAP).ifPresent(handler -> handler.canTick = this.canTick);
             }
         });
 

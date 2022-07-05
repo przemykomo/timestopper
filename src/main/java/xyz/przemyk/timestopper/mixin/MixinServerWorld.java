@@ -1,63 +1,43 @@
 package xyz.przemyk.timestopper.mixin;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.profiler.IProfiler;
-import net.minecraft.util.RegistryKey;
-import net.minecraft.world.DimensionType;
-import net.minecraft.world.ISeedReader;
-import net.minecraft.world.World;
-import net.minecraft.world.server.ServerChunkProvider;
-import net.minecraft.world.server.ServerWorld;
-import net.minecraft.world.storage.ISpawnWorldInfo;
+import net.minecraft.core.Holder;
+import net.minecraft.core.Registry;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.profiling.ProfilerFiller;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.WorldGenLevel;
+import net.minecraft.world.level.dimension.DimensionType;
+import net.minecraft.world.level.storage.WritableLevelData;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import xyz.przemyk.timestopper.TimeStopperMod;
 
 import java.util.function.Supplier;
 
-@SuppressWarnings("unused")
-@Mixin(ServerWorld.class)
-public abstract class MixinServerWorld extends World implements ISeedReader, net.minecraftforge.common.extensions.IForgeWorldServer {
+@Mixin(ServerLevel.class)
+public abstract class MixinServerWorld extends Level implements WorldGenLevel {
 
-    protected MixinServerWorld(ISpawnWorldInfo p_i241925_1_, RegistryKey<World> p_i241925_2_, DimensionType p_i241925_3_, Supplier<IProfiler> p_i241925_4_, boolean p_i241925_5_, boolean p_i241925_6_, long p_i241925_7_) {
-        super(p_i241925_1_, p_i241925_2_, p_i241925_3_, p_i241925_4_, p_i241925_5_, p_i241925_6_, p_i241925_7_);
+    @Shadow protected abstract void tickPassenger(Entity p_8663_, Entity p_8664_);
+
+    protected MixinServerWorld(WritableLevelData p_220352_, ResourceKey<Level> p_220353_, Holder<DimensionType> p_220354_, Supplier<ProfilerFiller> p_220355_, boolean p_220356_, boolean p_220357_, long p_220358_, int p_220359_) {
+        super(p_220352_, p_220353_, p_220354_, p_220355_, p_220356_, p_220357_, p_220358_, p_220359_);
     }
 
-    @Shadow
-    public ServerChunkProvider getChunkProvider() {
-        return null;
-    }
+    @SuppressWarnings({"deprecation", "unused"})
+    public void tickNonPassenger(Entity p_8648_) {
+        p_8648_.setOldPosAndRot();
+        ProfilerFiller profilerfiller = this.getProfiler();
+        ++p_8648_.tickCount;
+        this.getProfiler().push(() -> Registry.ENTITY_TYPE.getKey(p_8648_.getType()).toString());
+        profilerfiller.incrementCounter("tickNonPassenger");
+        TimeStopperMod.updateEntity(p_8648_, true);
+        this.getProfiler().pop();
 
-    @Shadow
-    public void chunkCheck(Entity entityIn) {}
-
-    @Shadow
-    public void tickPassenger(Entity ridingEntity, Entity passengerEntity) {}
-
-    public void updateEntity(Entity entityIn) {
-        if (!(entityIn instanceof PlayerEntity) && !this.getChunkProvider().isChunkLoaded(entityIn)) {
-            this.chunkCheck(entityIn);
-        } else {
-            entityIn.forceSetPosition(entityIn.getPosX(), entityIn.getPosY(), entityIn.getPosZ());
-            entityIn.prevRotationYaw = entityIn.rotationYaw;
-            entityIn.prevRotationPitch = entityIn.rotationPitch;
-            if (entityIn.addedToChunk) {
-                ++entityIn.ticksExisted;
-                IProfiler iprofiler = this.getProfiler();
-                iprofiler.startSection(() -> entityIn.getType().getRegistryName() == null ? entityIn.getType().toString() : entityIn.getType().getRegistryName().toString());
-                iprofiler.func_230035_c_("tickNonPassenger");
-                TimeStopperMod.updateEntity(entityIn, true);
-                iprofiler.endSection();
-            }
-
-            this.chunkCheck(entityIn);
-            if (entityIn.addedToChunk) {
-                for(Entity entity : entityIn.getPassengers()) {
-                    this.tickPassenger(entityIn, entity);
-                }
-            }
-
+        for(Entity entity : p_8648_.getPassengers()) {
+            this.tickPassenger(p_8648_, entity);
         }
+
     }
 }

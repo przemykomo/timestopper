@@ -1,8 +1,8 @@
 package xyz.przemyk.timestopper;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.client.event.RenderPlayerEvent;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.entity.EntityEvent;
@@ -11,10 +11,8 @@ import net.minecraftforge.event.entity.item.ItemTossEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.network.PacketDistributor;
-import xyz.przemyk.timestopper.capabilities.control.CapabilityTimeControl;
+import net.minecraftforge.network.PacketDistributor;
 import xyz.przemyk.timestopper.capabilities.control.TimeStateHandlerProvider;
-import xyz.przemyk.timestopper.capabilities.tick.CapabilityConditionalTick;
 import xyz.przemyk.timestopper.capabilities.tick.ConditionalTickHandlerProvider;
 import xyz.przemyk.timestopper.network.PacketChangeConditionalTick;
 import xyz.przemyk.timestopper.network.PacketChangeTimeState;
@@ -36,7 +34,7 @@ public class TimeStopperEvents {
 
     @SubscribeEvent
     public static void attachCapabilitiesEvent(AttachCapabilitiesEvent<Entity> event) {
-        if (event.getObject() instanceof PlayerEntity) {
+        if (event.getObject() instanceof Player) {
             TimeStateHandlerProvider provider = new TimeStateHandlerProvider();
             event.addCapability(new ResourceLocation(TimeStopperMod.MODID, "time_control"), provider);
             event.addListener(provider::invalidate);
@@ -49,12 +47,12 @@ public class TimeStopperEvents {
 
     @SubscribeEvent
     public static void playerLoginEvent(PlayerEvent.PlayerLoggedInEvent event) {
-        PlayerEntity playerEntity = event.getPlayer();
-        if (!playerEntity.world.isRemote) {
-            playerEntity.getCapability(CapabilityTimeControl.TIME_CONTROL_CAPABILITY).ifPresent(h ->
-                    TimeStopperPacketHandler.INSTANCE.send(PacketDistributor.ALL.noArg(), new PacketChangeTimeState(h.getState(), playerEntity.getUniqueID())));
-            playerEntity.getCapability(CapabilityConditionalTick.CONDITIONAL_TICK_CAPABILITY).ifPresent(h ->
-                    TimeStopperPacketHandler.INSTANCE.send(PacketDistributor.ALL.noArg(), new PacketChangeConditionalTick(h.canTick(), playerEntity.getEntityId())));
+        Player playerEntity = event.getPlayer();
+        if (!playerEntity.level.isClientSide) {
+            playerEntity.getCapability(TimeStateHandlerProvider.TIME_STATE_CAP).ifPresent(handler ->
+                    TimeStopperPacketHandler.INSTANCE.send(PacketDistributor.ALL.noArg(), new PacketChangeTimeState(handler.timeState, playerEntity.getUUID())));
+            playerEntity.getCapability(ConditionalTickHandlerProvider.CONDITIONAL_TICK_CAP).ifPresent(handler ->
+                    TimeStopperPacketHandler.INSTANCE.send(PacketDistributor.ALL.noArg(), new PacketChangeConditionalTick(handler.canTick, playerEntity.getId())));
         }
     }
 }
