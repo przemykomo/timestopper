@@ -17,8 +17,6 @@ import xyz.przemyk.timestopper.network.TimeStopperPacketHandler;
 import xyz.przemyk.timestopper.setup.TimeStopperCapabilities;
 import xyz.przemyk.timestopper.setup.TimeStopperItems;
 
-import java.util.concurrent.atomic.AtomicInteger;
-
 @Mod(TimeStopperMod.MODID)
 public class TimeStopperMod {
 
@@ -53,6 +51,9 @@ public class TimeStopperMod {
 
     public static boolean canUpdateEntity(Entity entity) {
         AABB toScan = scan.move(entity.position());
+        if (entity.getCapability(TimeStateHandlerProvider.TIME_STATE_CAP).map(h -> h.timeState == TimeState.STOPPED).orElse(false)) {
+            return true;
+        }
 
         for (Player playerEntity : entity.level.getEntitiesOfClass(Player.class, toScan)) {
             if (playerEntity == entity) {
@@ -73,33 +74,39 @@ public class TimeStopperMod {
         }
     }
 
-    //TODO: move time state detection to some other generic method so there won't be duplicates in canUpdate and here
     public static void updateEntity(Entity entity) {
         if (entity.canUpdate()) {
 
-            AtomicInteger fastTimeCounter = new AtomicInteger();
+            TimeState timeState = TimeState.NORMAL;
 
             for (Player playerEntity : entity.level.getEntitiesOfClass(Player.class, scan.move(entity.position()))) {
                 if (entity != playerEntity) {
-                    playerEntity.getCapability(TimeStateHandlerProvider.TIME_STATE_CAP).ifPresent(handler -> {
-                        if (handler.timeState == TimeState.FAST) {
-                            fastTimeCounter.incrementAndGet();
-                        } else if (handler.timeState == TimeState.SLOW) {
-                            fastTimeCounter.decrementAndGet();
+                    TimeState newTimeState = playerEntity.getCapability(TimeStateHandlerProvider.TIME_STATE_CAP).map(handler -> {
+                        if (handler.timeState == TimeState.STOPPED &&
+                                entity.getCapability(TimeStateHandlerProvider.TIME_STATE_CAP).map(handlerEntity -> handlerEntity.timeState == TimeState.STOPPED).orElse(false)) {
+                            return TimeState.NORMAL;
+                        } else {
+                            return handler.timeState;
                         }
-                    });
+                    }).orElse(TimeState.NORMAL);
+                    if (newTimeState.ordinal() > timeState.ordinal()) {
+                        timeState = newTimeState;
+                    }
                 }
             }
 
-            if (fastTimeCounter.get() >= 0) {
-                entity.tick();
-                if (fastTimeCounter.get() > 0) {
-                    entity.tick(); // tick entity twice if time state is fast
-                }
-            } else {
-                if (entity.level.getGameTime() % 2 == 0) {
+            switch (timeState) {
+                case NORMAL:
                     entity.tick();
-                }
+                    break;
+                case SLOW:
+                    if (entity.level.getGameTime() % 2 == 0) {
+                        entity.tick();
+                    }
+                    break;
+                case FAST:
+                    entity.tick();
+                    entity.tick();
             }
         }
     }

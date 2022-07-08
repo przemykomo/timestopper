@@ -18,14 +18,6 @@ public abstract class MixinEntity extends net.minecraftforge.common.capabilities
         super(baseClass);
     }
 
-    @SuppressWarnings("FieldMayBeFinal")
-    @Shadow private boolean canUpdate = true;
-
-    @Override
-    public boolean canUpdate() { //TODO?
-        return TimeStopperMod.canUpdateEntity((Entity) (Object) this) && canUpdate;
-    }
-
     @Shadow private float yRot;
     @Shadow private float xRot;
     @Shadow public float yRotO;

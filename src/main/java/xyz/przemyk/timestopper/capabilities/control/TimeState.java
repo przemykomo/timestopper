@@ -5,10 +5,11 @@ import net.minecraft.network.chat.MutableComponent;
 import xyz.przemyk.timestopper.TimeStopperMod;
 
 public enum TimeState {
+    // The first one has the lowest priority
     NORMAL,
-    STOPPED,
     FAST,
-    SLOW;
+    SLOW,
+    STOPPED;
 
     public MutableComponent toTextComponent() {
         return switch (this) {
