@@ -1,5 +1,7 @@
 package xyz.przemyk.timestopper;
 
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.particle.Particle;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.CreativeModeTab;
@@ -7,7 +9,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.TickingBlockEntity;
 import net.minecraft.world.phys.AABB;
-import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.network.PacketDistributor;
 import xyz.przemyk.timestopper.capabilities.control.TimeState;
@@ -119,6 +120,32 @@ public class TimeStopperMod {
             case FAST:
                 entity.tick();
                 entity.tick();
+        }
+    }
+
+    public static void updateParticle(Particle particle) {
+        TimeState timeState = TimeState.NORMAL;
+        Level level = Minecraft.getInstance().level;
+
+        for (Player playerEntity : level.getEntitiesOfClass(Player.class, scan.move(particle.x, particle.y, particle.z))) {
+            TimeState newTimeState = playerEntity.getCapability(TimeStateHandlerProvider.TIME_STATE_CAP).map(handler -> handler.timeState).orElse(TimeState.NORMAL);
+            if (newTimeState.ordinal() > timeState.ordinal()) {
+                timeState = newTimeState;
+            }
+        }
+
+        switch (timeState) {
+            case NORMAL:
+                particle.tick();
+                break;
+            case SLOW:
+                if (level.getGameTime() % 2 == 0) {
+                    particle.tick();
+                }
+                break;
+            case FAST:
+                particle.tick();
+                particle.tick();
         }
     }
 }
