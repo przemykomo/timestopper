@@ -6,6 +6,7 @@
     "mixins": [
         "MixinClientWorld",
         "MixinEntity",
+        "MixinLevel",
         "MixinServerWorld",
         "MixinWorldRenderer"
     ],
