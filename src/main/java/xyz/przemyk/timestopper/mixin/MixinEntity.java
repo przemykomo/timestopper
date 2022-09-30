@@ -11,6 +11,7 @@ import xyz.przemyk.timestopper.TimeStopperMod;
 
 import javax.annotation.Nullable;
 
+@SuppressWarnings("UnstableApiUsage")
 @Mixin(Entity.class)
 public abstract class MixinEntity extends net.minecraftforge.common.capabilities.CapabilityProvider<Entity> implements Nameable, EntityAccess, CommandSource, net.minecraftforge.common.extensions.IForgeEntity {
 

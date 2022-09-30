@@ -4,11 +4,13 @@
     "compatibilityLevel": "JAVA_17",
     "refmap": "timestopper.refmap.json",
     "mixins": [
-        "MixinClientWorld",
+        "MixinBlockStateBase",
+        "MixinClientLevel",
         "MixinEntity",
+        "MixinFluidState",
         "MixinLevel",
-        "MixinServerWorld",
-        "MixinWorldRenderer"
+        "MixinServerLevel",
+        "MixinLevelRenderer"
     ],
     "injectors": {
         "defaultRequire": 1

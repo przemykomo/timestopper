@@ -6,7 +6,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.client.event.RenderPlayerEvent;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.entity.EntityEvent;
-import net.minecraftforge.event.entity.EntityJoinWorldEvent;
+import net.minecraftforge.event.entity.EntityJoinLevelEvent;
 import net.minecraftforge.event.entity.item.ItemTossEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -21,7 +21,7 @@ public class TimeStopperEvents {
 
     @SubscribeEvent
     public static void onEntityEvent(EntityEvent event) {
-        if (event instanceof EntityJoinWorldEvent || event instanceof RenderPlayerEvent || event instanceof ItemTossEvent) {
+        if (event instanceof EntityJoinLevelEvent || event instanceof RenderPlayerEvent || event instanceof ItemTossEvent) {
             return;
         }
 
@@ -41,7 +41,7 @@ public class TimeStopperEvents {
 
     @SubscribeEvent
     public static void playerLoginEvent(PlayerEvent.PlayerLoggedInEvent event) {
-        Player playerEntity = event.getPlayer();
+        Player playerEntity = event.getEntity();
         if (!playerEntity.level.isClientSide) {
             playerEntity.getCapability(TimeStateHandlerProvider.TIME_STATE_CAP).ifPresent(handler ->
                     TimeStopperPacketHandler.INSTANCE.send(PacketDistributor.ALL.noArg(), new PacketChangeTimeState(handler.timeState, playerEntity.getUUID())));

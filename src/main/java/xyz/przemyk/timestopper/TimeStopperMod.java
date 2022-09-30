@@ -2,6 +2,7 @@ package xyz.przemyk.timestopper;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.particle.Particle;
+import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.CreativeModeTab;
@@ -49,6 +50,15 @@ public class TimeStopperMod {
             if (playerEntity == entity) {
                 continue;
             }
+            if (playerEntity.getCapability(TimeStateHandlerProvider.TIME_STATE_CAP).map(h -> h.timeState == TimeState.STOPPED).orElse(false)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public static boolean canRandomTick(BlockPos blockPos, Level level) {
+        for (Player playerEntity : level.getEntitiesOfClass(Player.class, scan.move(blockPos))) {
             if (playerEntity.getCapability(TimeStateHandlerProvider.TIME_STATE_CAP).map(h -> h.timeState == TimeState.STOPPED).orElse(false)) {
                 return false;
             }

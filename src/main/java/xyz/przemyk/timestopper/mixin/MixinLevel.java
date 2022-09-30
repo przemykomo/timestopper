@@ -15,7 +15,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-@SuppressWarnings("unused")
+@SuppressWarnings({"unused", "UnstableApiUsage"})
 @Mixin(Level.class)
 public abstract class MixinLevel extends net.minecraftforge.common.capabilities.CapabilityProvider<Level> implements LevelAccessor, AutoCloseable, net.minecraftforge.common.extensions.IForgeLevel {
     @Shadow public abstract ProfilerFiller getProfiler();
@@ -24,6 +24,7 @@ public abstract class MixinLevel extends net.minecraftforge.common.capabilities.
 
     @Shadow @Final private ArrayList<BlockEntity> freshBlockEntities;
 
+    @SuppressWarnings("FieldCanBeLocal")
     @Shadow private boolean tickingBlockEntities;
 
     @Shadow @Final private List<TickingBlockEntity> pendingBlockEntityTickers;

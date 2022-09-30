@@ -13,7 +13,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import xyz.przemyk.timestopper.TimeStopperMod;
 
 @Mixin(LevelRenderer.class)
-public abstract class MixinWorldRenderer implements ResourceManagerReloadListener, AutoCloseable {
+public abstract class MixinLevelRenderer implements ResourceManagerReloadListener, AutoCloseable {
 
     @Final
     @Shadow

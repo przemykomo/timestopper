@@ -17,11 +17,11 @@ import xyz.przemyk.timestopper.TimeStopperMod;
 import java.util.function.Supplier;
 
 @Mixin(ServerLevel.class)
-public abstract class MixinServerWorld extends Level implements WorldGenLevel {
+public abstract class MixinServerLevel extends Level implements WorldGenLevel { //TODO: stop scheduled ticks
 
     @Shadow protected abstract void tickPassenger(Entity p_8663_, Entity p_8664_);
 
-    protected MixinServerWorld(WritableLevelData p_220352_, ResourceKey<Level> p_220353_, Holder<DimensionType> p_220354_, Supplier<ProfilerFiller> p_220355_, boolean p_220356_, boolean p_220357_, long p_220358_, int p_220359_) {
+    protected MixinServerLevel(WritableLevelData p_220352_, ResourceKey<Level> p_220353_, Holder<DimensionType> p_220354_, Supplier<ProfilerFiller> p_220355_, boolean p_220356_, boolean p_220357_, long p_220358_, int p_220359_) {
         super(p_220352_, p_220353_, p_220354_, p_220355_, p_220356_, p_220357_, p_220358_, p_220359_);
     }
 
