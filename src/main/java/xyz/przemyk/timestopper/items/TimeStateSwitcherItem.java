@@ -17,7 +17,7 @@ public class TimeStateSwitcherItem extends Item {
     public final TimeState OTHER_STATE;
 
     public TimeStateSwitcherItem(TimeState timeState) {
-        super(new Properties().rarity(Rarity.EPIC).tab(TimeStopperMod.TIME_STOPPER_ITEM_GROUP).stacksTo(1));
+        super(new Properties().rarity(Rarity.EPIC).stacksTo(1));
         OTHER_STATE = timeState;
     }
 

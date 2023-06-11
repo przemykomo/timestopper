@@ -12,6 +12,7 @@ import xyz.przemyk.timestopper.TimeStopperMod;
 @SuppressWarnings("unused")
 @Mixin(ParticleEngine.class)
 public abstract class MixinParticleEngine implements PreparableReloadListener {
+
     private void tickParticle(Particle particle) {
         try {
             TimeStopperMod.updateParticle(particle);

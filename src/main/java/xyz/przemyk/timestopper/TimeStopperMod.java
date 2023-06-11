@@ -5,8 +5,6 @@ import net.minecraft.client.particle.Particle;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.CreativeModeTab;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.TickingBlockEntity;
 import net.minecraft.world.phys.AABB;
@@ -33,23 +31,17 @@ public class TimeStopperMod {
         TimeStopperCapabilities.init();
     }
 
-    public static final CreativeModeTab TIME_STOPPER_ITEM_GROUP = new CreativeModeTab(MODID) {
-        @Override
-        public ItemStack makeIcon() {
-            return TimeStopperItems.STOPPER.get().getDefaultInstance();
-        }
-    };
-
     public static boolean canUpdateEntity(Entity entity) {
         AABB toScan = scan.move(entity.position());
         if (entity.getCapability(TimeStateHandlerProvider.TIME_STATE_CAP).map(h -> h.timeState == TimeState.STOPPED).orElse(false)) {
             return true;
         }
 
-        for (Player playerEntity : entity.level.getEntitiesOfClass(Player.class, toScan)) {
+        for (Player playerEntity : entity.level().getEntitiesOfClass(Player.class, toScan)) {
             if (playerEntity == entity) {
                 continue;
             }
+
             if (playerEntity.getCapability(TimeStateHandlerProvider.TIME_STATE_CAP).map(h -> h.timeState == TimeState.STOPPED).orElse(false)) {
                 return false;
             }
@@ -69,7 +61,7 @@ public class TimeStopperMod {
     public static void setTimeState(Player player, TimeState timeState, TimeStateHandler timeStateHandler) {
         timeStateHandler.timeState = timeState;
         player.displayClientMessage(timeStateHandler.timeState.toTextComponent(), true);
-        if (!player.level.isClientSide) {
+        if (!player.level().isClientSide) {
             TimeStopperPacketHandler.INSTANCE.send(PacketDistributor.ALL.noArg(), new PacketChangeTimeState(timeState, player.getUUID()));
         }
     }
@@ -85,24 +77,23 @@ public class TimeStopperMod {
         }
 
         switch (timeState) {
-            case NORMAL:
-                tickingBlockEntity.tick();
-                break;
-            case SLOW:
+            case NORMAL -> tickingBlockEntity.tick();
+            case SLOW -> {
                 if (level.getGameTime() % 2 == 0) {
                     tickingBlockEntity.tick();
                 }
-                break;
-            case FAST:
+            }
+            case FAST -> {
                 tickingBlockEntity.tick();
                 tickingBlockEntity.tick();
+            }
         }
     }
 
     public static void updateEntity(Entity entity) {
         TimeState timeState = TimeState.NORMAL;
 
-        for (Player playerEntity : entity.level.getEntitiesOfClass(Player.class, scan.move(entity.position()))) {
+        for (Player playerEntity : entity.level().getEntitiesOfClass(Player.class, scan.move(entity.position()))) {
             if (entity != playerEntity) {
                 TimeState newTimeState = playerEntity.getCapability(TimeStateHandlerProvider.TIME_STATE_CAP).map(handler -> {
                     if (handler.timeState == TimeState.STOPPED &&
@@ -119,17 +110,16 @@ public class TimeStopperMod {
         }
 
         switch (timeState) {
-            case NORMAL:
-                entity.tick();
-                break;
-            case SLOW:
-                if (entity.level.getGameTime() % 2 == 0) {
+            case NORMAL -> entity.tick();
+            case SLOW -> {
+                if (entity.level().getGameTime() % 2 == 0) {
                     entity.tick();
                 }
-                break;
-            case FAST:
+            }
+            case FAST -> {
                 entity.tick();
                 entity.tick();
+            }
         }
     }
 
@@ -145,17 +135,16 @@ public class TimeStopperMod {
         }
 
         switch (timeState) {
-            case NORMAL:
-                particle.tick();
-                break;
-            case SLOW:
+            case NORMAL -> particle.tick();
+            case SLOW -> {
                 if (level.getGameTime() % 2 == 0) {
                     particle.tick();
                 }
-                break;
-            case FAST:
+            }
+            case FAST -> {
                 particle.tick();
                 particle.tick();
+            }
         }
     }
 }

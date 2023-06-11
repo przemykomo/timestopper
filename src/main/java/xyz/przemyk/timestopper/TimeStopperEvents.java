@@ -42,7 +42,7 @@ public class TimeStopperEvents {
     @SubscribeEvent
     public static void playerLoginEvent(PlayerEvent.PlayerLoggedInEvent event) {
         Player playerEntity = event.getEntity();
-        if (!playerEntity.level.isClientSide) {
+        if (!playerEntity.level().isClientSide) {
             playerEntity.getCapability(TimeStateHandlerProvider.TIME_STATE_CAP).ifPresent(handler ->
                     TimeStopperPacketHandler.INSTANCE.send(PacketDistributor.ALL.noArg(), new PacketChangeTimeState(handler.timeState, playerEntity.getUUID())));
         }
