@@ -4,6 +4,7 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.Rarity;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -23,9 +24,9 @@ public class TimeStopperItems {
         CREATIVE_MODE_TABS.register(FMLJavaModLoadingContext.get().getModEventBus());
     }
 
-    public static final RegistryObject<TimeStateSwitcherItem> STOPPER = ITEMS.register("timestopper", () -> new TimeStateSwitcherItem(TimeState.STOPPED));
-    public static final RegistryObject<TimeStateSwitcherItem> ACCELERATOR = ITEMS.register("timeaccelerator", () -> new TimeStateSwitcherItem(TimeState.FAST));
-    public static final RegistryObject<TimeStateSwitcherItem> DECELERATOR = ITEMS.register("timedecelerator", () -> new TimeStateSwitcherItem(TimeState.SLOW));
+    public static final RegistryObject<TimeStateSwitcherItem> STOPPER = ITEMS.register("timestopper", () -> new TimeStateSwitcherItem(new Item.Properties().rarity(Rarity.EPIC).stacksTo(1), TimeState.STOPPED, 200));
+    public static final RegistryObject<TimeStateSwitcherItem> ACCELERATOR = ITEMS.register("timeaccelerator", () -> new TimeStateSwitcherItem(new Item.Properties().rarity(Rarity.EPIC).stacksTo(1), TimeState.FAST, 200));
+    public static final RegistryObject<TimeStateSwitcherItem> DECELERATOR = ITEMS.register("timedecelerator", () -> new TimeStateSwitcherItem(new Item.Properties().rarity(Rarity.EPIC).stacksTo(1), TimeState.SLOW, 200));
 
     public static final RegistryObject<CreativeModeTab> TIME_STOPPER_TAB = CREATIVE_MODE_TABS.register("time_stopper_tab", () -> CreativeModeTab.builder()
             .icon(() -> STOPPER.get().getDefaultInstance())

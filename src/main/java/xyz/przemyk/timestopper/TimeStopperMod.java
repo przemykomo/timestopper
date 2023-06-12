@@ -1,18 +1,25 @@
 package xyz.przemyk.timestopper;
 
+import com.google.common.collect.Iterables;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.TickingBlockEntity;
 import net.minecraft.world.phys.AABB;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.network.PacketDistributor;
 import xyz.przemyk.timestopper.capabilities.control.TimeState;
 import xyz.przemyk.timestopper.capabilities.control.TimeStateHandler;
 import xyz.przemyk.timestopper.capabilities.control.TimeStateHandlerProvider;
+import xyz.przemyk.timestopper.capabilities.item.PearlEnergyProvider;
+import xyz.przemyk.timestopper.items.TimeStateSwitcherItem;
 import xyz.przemyk.timestopper.network.PacketChangeTimeState;
 import xyz.przemyk.timestopper.network.TimeStopperPacketHandler;
 import xyz.przemyk.timestopper.setup.TimeStopperCapabilities;
@@ -29,6 +36,38 @@ public class TimeStopperMod {
         TimeStopperPacketHandler.init();
         TimeStopperItems.init();
         TimeStopperCapabilities.init();
+
+        MinecraftForge.EVENT_BUS.addListener(TimeStopperMod::onPlayerTick);
+    }
+
+    public static void onPlayerTick(TickEvent.PlayerTickEvent event) {
+        if (event.phase == TickEvent.Phase.END) {
+            event.player.getCapability(TimeStateHandlerProvider.TIME_STATE_CAP).ifPresent(timeStateHandler -> {
+                if (timeStateHandler.timeState != TimeState.NORMAL) {
+                    Inventory inventory = event.player.getInventory();
+                    for (ItemStack itemStack : Iterables.concat(inventory.items, inventory.offhand)) {
+                        if (itemStack.getItem() instanceof TimeStateSwitcherItem timeStateSwitcherItem) {
+                            if (timeStateHandler.timeState == timeStateSwitcherItem.OTHER_STATE) {
+                                if (itemStack.getCapability(PearlEnergyProvider.PEARL_ENERGY_STORAGE_CAP).map(energyStorage -> {
+                                    int energy = energyStorage.getEnergy();
+                                    if (energy > 0) {
+                                        energy--;
+                                        energyStorage.setEnergy(energy);
+                                        if (energy == 0) {
+                                            setTimeState(event.player, TimeState.NORMAL, timeStateHandler);
+                                        }
+                                        return true;
+                                    }
+                                    return false;
+                                }).orElse(false)) {
+                                    return;
+                                };
+                            }
+                        }
+                    }
+                }
+            });
+        }
     }
 
     public static boolean canUpdateEntity(Entity entity) {
