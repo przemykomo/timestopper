@@ -7,6 +7,7 @@ import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import org.jetbrains.annotations.Nullable;
@@ -15,6 +16,8 @@ import xyz.przemyk.timestopper.capabilities.control.TimeState;
 import xyz.przemyk.timestopper.capabilities.control.TimeStateHandlerProvider;
 import xyz.przemyk.timestopper.capabilities.item.PearlEnergyProvider;
 import xyz.przemyk.timestopper.capabilities.item.PearlEnergyStorage;
+
+import java.util.List;
 
 public class TimeStateSwitcherItem extends Item {
 
@@ -83,5 +86,10 @@ public class TimeStateSwitcherItem extends Item {
             });
         }
         return true;
+    }
+
+    @Override
+    public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> tooltip, TooltipFlag flag) {
+        stack.getCapability(PearlEnergyProvider.PEARL_ENERGY_STORAGE_CAP).ifPresent(energy -> tooltip.add(Component.translatable("text." + TimeStopperMod.MODID + ".energy", energy.getEnergy())));
     }
 }

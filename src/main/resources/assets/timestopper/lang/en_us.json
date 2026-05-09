@@ -9,5 +9,7 @@
     "info.timestopper.normal_speed": "Normal time speed",
     "info.timestopper.fast_speed": "Fast time speed",
     "info.timestopper.slow_speed": "Slow time speed",
-    "info.timestopper.stopped_time": "Stopped time"
+    "info.timestopper.stopped_time": "Stopped time",
+
+    "text.timestopper.energy": "Energy: %s"
 }
